@@ -30,6 +30,11 @@ classifiers = [
 
 dependencies = [
     "click",
+    "openstacksdk",
+    "prettytable",
+    "pydantic",
+    "pyaml",
+    "SQLAlchemy",
     "packaging>=23.2",
 ]
 
@@ -76,6 +81,7 @@ dev = [
     "types-requests",
     "types-pyyaml",
     "types-pytz",
+    "sqlalchemy2-stubs",
     # For validation feature
     "croniter",
     "ruff",
@@ -753,7 +759,7 @@ ignore = [
 extend-ignore = ["E203"]
 
 [tool.ruff.lint.extend-per-file-ignores]
-"tests/*" = [
+"sunbeam_migrate/tests/*" = [
     "D100",
     "D101",
     "D102",
@@ -768,10 +774,10 @@ extend-ignore = ["E203"]
     "N806",
     "S",    # Disable bandit rules in tests
 ]
-"setup.py" = ["D100"]
 "**/__init__.py" = ["D104"]
 
-"sunbeam/*" = [
+
+"sunbeam_migrate/*" = [
     "D107", # missing docstring in __init__ method
     "D101", # Missing docstring in public class
     "D103", # Missing docstring in public function
@@ -794,6 +800,9 @@ min-file-size = 1
 
 [tool.ruff.lint.mccabe]
 max-complexity = 15
+
+[tool.mypy]
+plugins = "sqlalchemy.ext.mypy.plugin"
 
 [[tool.mypy.overrides]]
 module = ["watcherclient.*"]
