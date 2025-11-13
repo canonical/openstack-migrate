@@ -55,6 +55,7 @@ def _table_format(migration: models.Migration):
         "status",
         "error_message",
         "archived",
+        "source_removed",
     ]
 
     for field in fields:

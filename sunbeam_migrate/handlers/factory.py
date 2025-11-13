@@ -11,7 +11,7 @@ MIGRATION_HANDLERS = {
 }
 
 
-def get_migration_handler(resource_type: str) -> base.BaseMigrationHandler:
+def get_migration_handler(resource_type: str | None) -> base.BaseMigrationHandler:
     if not resource_type:
         raise exception.InvalidInput("No resource type specified.")
     if resource_type not in MIGRATION_HANDLERS:

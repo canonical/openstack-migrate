@@ -16,7 +16,7 @@ database_file: /home/ubuntu/.local/share/sunbeam-migrate/sqlite.db
 EOF
 ```
 
-Prepare the clouds.yaml file:
+Define the clouds.yaml file:
 
 ```
 $ cat > /home/ubuntu/cloud-config.yaml <<EOF
@@ -104,10 +104,34 @@ $ sunbeam-migrate show 1ab1d02c-f8f6-49df-bcd5-91e374e264ff
 +-------------------+--------------------------------------+
 ```
 
+Cleanup the source resource if the migration succeeds:
+
+```
+$ sunbeam-migrate start \
+  --resource-type=image \
+  --cleanup-source ff25220e-4adb-432c-88d3-92188c0d3cb6
+```
+
+The source cleanup can also be performed later, after inspecting the migrated resources.
+
+```
+# Do a dry run first.
+$ sunbeam-migrate cleanup-source --resource-type=image --dry-run
+2025-11-13 14:37:43,677 INFO DRY-RUN: migration succeeded, cleaning up source image: 42970672-7594-44ee-97f4-2074b40565e8
+2025-11-13 14:37:43,677 INFO DRY-RUN: migration succeeded, cleaning up source image: 5333693c-80bf-43b7-b2e2-61178c68c48f
+2025-11-13 14:37:43,678 INFO DRY-RUN: migration succeeded, cleaning up source image: 693b8c44-7d6b-484f-8576-4d365c3dfa92
+
+$ sunbeam-migrate cleanup-source --resource-type=image 
+2025-11-13 14:37:49,905 INFO Migration succeeded, cleaning up source image: 42970672-7594-44ee-97f4-2074b40565e8
+2025-11-13 14:37:51,861 INFO Migration succeeded, cleaning up source image: 5333693c-80bf-43b7-b2e2-61178c68c48f
+2025-11-13 14:37:52,152 INFO Migration succeeded, cleaning up source image: 693b8c44-7d6b-484f-8576-4d365c3dfa92
+```
+
 ## TODOs
 
 * Store the destination resource uuid even in case of failed migrations, if available.
-* Consider doing cleanups (can be an optional flag).
-* Add a flag to remove the source resource after successful migrations.
-* Add a command to remove the source resources after successful migrations.
+  * might be unnecessary if we choose to automatically remove the resources
+    in case of failures
 * Decide what to do with dependent resources (e.g. networks, subnets, routers)
+* Add new resource handlers.
+* Implement some tests.

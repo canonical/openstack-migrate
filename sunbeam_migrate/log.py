@@ -9,11 +9,14 @@ from sunbeam_migrate import config
 CONFIG = config.get_config()
 
 
-def configure_logging():
+def configure_logging(debug: bool=False):
     """Configure logging based on the user configuration."""
-    logger = logging.getLogger()
+    if debug:
+        log_level = logging.DEBUG
+    else:
+        log_level = logging.getLevelName(CONFIG.log_level.upper())
 
-    log_level = logging.getLevelName(CONFIG.log_level.upper())
+    logger = logging.getLogger()
     logger.setLevel(log_level)
 
     if CONFIG.log_console:

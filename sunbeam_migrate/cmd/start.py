@@ -5,7 +5,7 @@ import logging
 
 import click
 
-from sunbeam_migrate import exception, manager
+from sunbeam_migrate import manager
 
 LOG = logging.getLogger()
 
@@ -52,16 +52,16 @@ def start_batch_migration(
     migrate_all: bool,
     cleanup_source: bool,
 ):
-    """Migrate multiple resources that match the specified filters."""
+    """Migrate multiple resources that match the filters."""
     if not resource_filters and not migrate_all:
-        raise exception.InvalidInput(
+        raise click.ClickException(
             "No filters specified. Specify '--all' to migrate all resources."
         )
 
     resource_filters_dict: dict[str, str] = {}
     for str_filter in resource_filters or []:
         if ":" not in str_filter:
-            raise exception.InvalidInput(
+            raise click.ClickException(
                 "Invalid resource filter, "
                 f"expecting 'key:value' arguments: {str_filter}"
             )

@@ -70,7 +70,7 @@ class Migration(BaseModel):
 
     # Whether the resource was removed on the source side after
     # a successful migration.
-    source_removed = Column(Boolean)
+    source_removed = Column(Boolean, default=False)
 
     status = Column(Text)
     error_message = Column(Text)

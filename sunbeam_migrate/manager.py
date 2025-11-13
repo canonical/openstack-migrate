@@ -48,17 +48,7 @@ class SunbeamMigrationManager:
             raise
 
         if cleanup_source:
-            LOG.info(
-                "Migration succeeded, cleaning up source resource: %s", resource_id
-            )
-            try:
-                handler.delete_source_resource(resource_id)
-                migration.source_removed = True
-            except Exception as ex:
-                migration.status = constants.STATUS_SOURCE_CLEANUP_FAILED
-                migration.error_message = "Source cleanup failed, error: %r" % ex
-                migration.save()
-                raise
+            self.cleanup_migration_source(migration)
 
         LOG.info("Successfully migrated resource, destination id: %s", destination_id)
         migration.status = constants.STATUS_COMPLETED
@@ -100,3 +90,24 @@ class SunbeamMigrationManager:
                 self.perform_individual_migration(
                     resource_type, resource_id, cleanup_source=cleanup_source
                 )
+
+    def cleanup_migration_source(self, migration: models.Migration):
+        """Cleanup the migration source."""
+        LOG.info(
+            "Migration succeeded, cleaning up source %s: %s",
+            migration.resource_type,
+            migration.source_id,
+        )
+        if not migration.source_id:
+            raise exception.InvalidInput("Missing source id.")
+
+        try:
+            handler = factory.get_migration_handler(migration.resource_type)
+            handler.delete_source_resource(migration.source_id)
+            migration.source_removed = True
+            migration.save()
+        except Exception as ex:
+            migration.status = constants.STATUS_SOURCE_CLEANUP_FAILED
+            migration.error_message = "Source cleanup failed, error: %r" % ex
+            migration.save()
+            raise

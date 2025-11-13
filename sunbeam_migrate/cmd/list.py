@@ -18,6 +18,16 @@ from sunbeam_migrate.db import api, models
 @click.option("--archived", is_flag=True, help="Only show archived migrations.")
 @click.option("--include-archived", is_flag=True, help="Include archived migrations.")
 @click.option(
+    "--source-removed",
+    is_flag=True,
+    help="Only show resources cleaned up from the source.",
+)
+@click.option(
+    "--exclude-source-removed",
+    is_flag=True,
+    help="Exclude resources cleaned up from the source.",
+)
+@click.option(
     "--format",
     "-f",
     "output_format",
@@ -33,6 +43,8 @@ def list_migrations(
     source_id: str,
     archived: bool,
     include_archived: bool,
+    source_removed: bool,
+    exclude_source_removed: bool,
 ):
     """List migrations."""
     filters: dict[str, typing.Any] = {}
@@ -46,6 +58,15 @@ def list_migrations(
         filters["source_id"] = source_id
     if archived:
         filters["archived"] = True
+
+    if source_removed and exclude_source_removed:
+        raise click.ClickException(
+            "Both --source-removed and --exclude-source-removed flags were specified."
+        )
+    if source_removed:
+        filters["source_removed"] = True
+    elif exclude_source_removed:
+        filters["source_removed"] = False
 
     migrations = api.get_migrations(include_archived=include_archived, **filters)
 
