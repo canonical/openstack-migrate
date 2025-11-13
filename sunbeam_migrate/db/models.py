@@ -68,5 +68,9 @@ class Migration(BaseModel):
     # Resulting resource name.
     destination_id = Column(Text)
 
+    # Whether the resource was removed on the source side after
+    # a successful migration.
+    source_removed = Column(Boolean)
+
     status = Column(Text)
     error_message = Column(Text)

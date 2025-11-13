@@ -13,10 +13,17 @@ LOG = logging.getLogger()
 @click.command("start")
 @click.option("--resource-type", help="The migrated resource type (e.g. image, secret)")
 @click.argument("resource_id")
-def start_migration(resource_type: str, resource_id: str):
+@click.option(
+    "--cleanup-source",
+    is_flag=True,
+    help="Cleanup the resources on the source side if the migration succeeds.",
+)
+def start_migration(resource_type: str, resource_id: str, cleanup_source: bool):
     """Migrate an individual resource."""
     mgr = manager.SunbeamMigrationManager()
-    mgr.perform_individual_migration(resource_type, resource_id)
+    mgr.perform_individual_migration(
+        resource_type, resource_id, cleanup_source=cleanup_source
+    )
 
 
 @click.command("start-batch")
@@ -33,11 +40,17 @@ def start_migration(resource_type: str, resource_id: str):
     help="Only log the steps to be executed, skipping migrations.",
 )
 @click.option("--all", "migrate_all", is_flag=True, help="Migrate all resources.")
+@click.option(
+    "--cleanup-source",
+    is_flag=True,
+    help="Cleanup the resources on the source side if the migration succeeds.",
+)
 def start_batch_migration(
     resource_type: str,
     resource_filters: tuple[str],
     dry_run: bool,
     migrate_all: bool,
+    cleanup_source: bool,
 ):
     """Migrate multiple resources that match the specified filters."""
     if not resource_filters and not migrate_all:
@@ -56,4 +69,9 @@ def start_batch_migration(
         resource_filters_dict[key.replace("-", "_")] = val
 
     mgr = manager.SunbeamMigrationManager()
-    mgr.perform_batch_migration(resource_type, resource_filters_dict, dry_run)
+    mgr.perform_batch_migration(
+        resource_type,
+        resource_filters_dict,
+        dry_run=dry_run,
+        cleanup_source=cleanup_source,
+    )

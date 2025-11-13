@@ -13,7 +13,12 @@ LOG = logging.getLogger()
 
 
 class SunbeamMigrationManager:
-    def perform_individual_migration(self, resource_type: str, resource_id: str):
+    def perform_individual_migration(
+        self,
+        resource_type: str,
+        resource_id: str,
+        cleanup_source: bool = False,
+    ):
         """Migrate the specified resource."""
         handler = factory.get_migration_handler(resource_type)
 
@@ -42,6 +47,19 @@ class SunbeamMigrationManager:
             migration.save()
             raise
 
+        if cleanup_source:
+            LOG.info(
+                "Migration succeeded, cleaning up source resource: %s", resource_id
+            )
+            try:
+                handler.delete_source_resource(resource_id)
+                migration.source_removed = True
+            except Exception as ex:
+                migration.status = constants.STATUS_SOURCE_CLEANUP_FAILED
+                migration.error_message = "Source cleanup failed, error: %r" % ex
+                migration.save()
+                raise
+
         LOG.info("Successfully migrated resource, destination id: %s", destination_id)
         migration.status = constants.STATUS_COMPLETED
         migration.destination_id = destination_id
@@ -52,6 +70,7 @@ class SunbeamMigrationManager:
         resource_type: str,
         resource_filters: dict[str, str],
         dry_run: bool,
+        cleanup_source: bool = False,
     ):
         """Migrate multiple resources that match the specified filters."""
         handler = factory.get_migration_handler(resource_type)
@@ -72,7 +91,12 @@ class SunbeamMigrationManager:
 
             if dry_run:
                 LOG.info(
-                    "DRY-RUN: %s migration, resource id: %s", resource_type, resource_id
+                    "DRY-RUN: %s migration, resource id: %s, cleanup source: %s",
+                    resource_type,
+                    resource_id,
+                    cleanup_source,
                 )
             else:
-                self.perform_individual_migration(resource_type, resource_id)
+                self.perform_individual_migration(
+                    resource_type, resource_id, cleanup_source=cleanup_source
+                )

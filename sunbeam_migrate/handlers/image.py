@@ -76,3 +76,6 @@ class GlanceImageMigrationHandler(base.BaseMigrationHandler):
             resource_ids.append(image.id)
 
         return resource_ids
+
+    def _delete_resource(self, resource_id: str, openstack_session):
+        openstack_session.delete_image(resource_id)

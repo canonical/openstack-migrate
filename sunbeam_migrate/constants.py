@@ -4,3 +4,4 @@
 STATUS_IN_PROGRESS = "in-progress"
 STATUS_COMPLETED = "completed"
 STATUS_FAILED = "failed"
+STATUS_SOURCE_CLEANUP_FAILED = "source-cleanup-failed"

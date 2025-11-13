@@ -38,6 +38,17 @@ class BaseMigrationHandler(abc.ABC):
         """
         pass
 
+    def delete_source_resource(self, resource_id: str):
+        """Delete the specified resource on the source cloud side."""
+        self._delete_resource(resource_id, self._source_session)
+
+    def delete_destination_resource(self, resource_id: str):
+        """Delete the specified resource on the destination cloud side."""
+        self._delete_resource(resource_id, self._destination_session)
+
+    def _delete_resource(self, resource_id: str, openstack_session):
+        raise NotImplementedError()
+
     def _get_openstack_session(self, cloud_name: str):
         if not CONF.cloud_config_file:
             raise exception.InvalidInput("No cloud config provided.")
