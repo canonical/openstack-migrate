@@ -18,6 +18,7 @@ class SunbeamMigrationManager:
         resource_type: str,
         resource_id: str,
         cleanup_source: bool = False,
+        include_dependencies: bool = False,
     ):
         """Migrate the specified resource."""
         handler = factory.get_migration_handler(resource_type)
@@ -38,9 +39,57 @@ class SunbeamMigrationManager:
         migration.save()
 
         try:
-            # TODO: save the destination id even in case of failures and consider
-            # performing cleanups.
-            destination_id = handler.perform_individual_migration(resource_id)
+            associated_resources = self._get_associated_resources(
+                resource_type, resource_id
+            )
+            LOG.debug(
+                "Associated resources of %s %s - %s",
+                resource_type,
+                resource_id,
+                associated_resources,
+            )
+            if associated_resources["pending"]:
+                if not include_dependencies:
+                    raise exception.InvalidInput(
+                        "The %s resource (%s) has pending associated resources. "
+                        "Specify --include-dependencies to automatically migrate them "
+                        "or use separate `sunbeam-migrate start` commands: %s"
+                        % (resource_type, resource_id, associated_resources)
+                    )
+                for assoc_resource_type, assoc_resource_id in associated_resources[
+                    "pending"
+                ]:
+                    LOG.info(
+                        "Migrating associated %s resource: %s",
+                        assoc_resource_type,
+                        assoc_resource_id,
+                    )
+                    # TODO: honor the "cleanup_sources" flag for associated
+                    # resources.
+                    self.perform_individual_migration(
+                        assoc_resource_type,
+                        assoc_resource_id,
+                        include_dependencies=include_dependencies,
+                    )
+
+                # Refresh the associated resources and ensure that all of them have
+                # been migrated.
+                associated_resources = self._get_associated_resources(
+                    resource_type, resource_id
+                )
+                if associated_resources["pending"]:
+                    raise exception.SunbeamMigrateException(
+                        "Unable to migrate %s resource (%s), "
+                        "dependencies still pending: %s"
+                        % (resource_type, resource_id, associated_resources)
+                    )
+
+            # The handler is expected to cleanup failed migrations on the destination
+            # side.
+            destination_id = handler.perform_individual_migration(
+                resource_id,
+                migrated_associated_resources=associated_resources["migrated"],
+            )
         except Exception as ex:
             migration.status = constants.STATUS_FAILED
             migration.error_message = "Migration failed, error: %r" % ex
@@ -55,12 +104,41 @@ class SunbeamMigrationManager:
         migration.destination_id = destination_id
         migration.save()
 
+    def _get_associated_resources(
+        self,
+        resource_type: str,
+        resource_id: str,
+    ) -> dict[str, list[tuple]]:
+        handler = factory.get_migration_handler(resource_type)
+        associated_resources = handler.get_associated_resources(resource_id)
+
+        migrated_resources: list[tuple[str, str, str]] = []
+        pending_resources: list[tuple[str, str]] = []
+
+        for resource_type, resource_id in associated_resources:
+            migrations = db_api.get_migrations(
+                source_id=resource_id, resource_type=resource_type
+            )
+            if not migrations or migrations[0].status != constants.STATUS_COMPLETED:
+                pending_resources.append((resource_type, resource_id))
+                continue
+            else:
+                migrated_resources.append(
+                    (resource_type, resource_id, migrations[0].destination_id)
+                )
+
+        return {
+            "migrated": migrated_resources,
+            "pending": pending_resources,
+        }
+
     def perform_batch_migration(
         self,
         resource_type: str,
         resource_filters: dict[str, str],
         dry_run: bool,
         cleanup_source: bool = False,
+        include_dependencies: bool = False,
     ):
         """Migrate multiple resources that match the specified filters."""
         handler = factory.get_migration_handler(resource_type)
@@ -88,7 +166,10 @@ class SunbeamMigrationManager:
                 )
             else:
                 self.perform_individual_migration(
-                    resource_type, resource_id, cleanup_source=cleanup_source
+                    resource_type,
+                    resource_id,
+                    cleanup_source=cleanup_source,
+                    include_dependencies=include_dependencies,
                 )
 
     def cleanup_migration_source(self, migration: models.Migration):

@@ -88,6 +88,12 @@ def _table_format(migrations: list[models.Migration]):
         "Destination ID",
     ]
     for entry in migrations:
+        if entry.service == "barbican":
+            # Show just the ids instead of the full resource URLs
+            # in order to maintain readability. The full URLs can be obtained
+            # using the "show" command.
+            entry.source_id = (entry.source_id or "").split("/")[-1]
+            entry.destination_id = (entry.destination_id or "").split("/")[-1]
         table.add_row(
             [
                 entry.uuid,

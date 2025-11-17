@@ -21,8 +21,17 @@ class BaseMigrationHandler(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def perform_individual_migration(self, resource_id: str) -> str:
+    def perform_individual_migration(
+        self,
+        resource_id: str,
+        migrated_associated_resources: list[tuple[str, str, str]],
+    ) -> str:
         """Migrate the specified resource.
+
+        :param resource_id: the resource to be migrated
+        :param migrated_associated_resources: a list of tuples describing
+            associated resources that have already been migrated.
+            Format: (resource_type, source_id, destination_id)
 
         Return the resulting resource id.
         """
@@ -59,11 +68,14 @@ class BaseMigrationHandler(abc.ABC):
         """
         return []
 
-    def get_member_resources(self) -> list[tuple[str, str]]:
+    def get_member_resources(self, resource_id: str) -> list[tuple[str, str]]:
         """Get a list of member resources.
 
         Each entry will be a tuple containing the resource type and
         the resource id.
+
+        We're using a list instead of a dict so that the handler can control
+        the order in which associated resources are migrated.
         """
         return []
 
@@ -79,11 +91,14 @@ class BaseMigrationHandler(abc.ABC):
         """
         return []
 
-    def get_associated_resources(self) -> list[tuple[str, str]]:
+    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
         """Get a list of associated resources.
 
         Each entry will be a tuple containing the resource type and
         the resource id.
+
+        We're using a list instead of a dict so that the handler can control
+        the order in which dependent resources are migrated.
         """
         return []
 
@@ -159,3 +174,21 @@ class BaseMigrationHandler(abc.ABC):
                     f"Invalid resource filter: {key}, "
                     f"supported filters {self.get_supported_resource_filters()}"
                 )
+
+    def _get_associated_resource_destination_id(
+        self,
+        resource_type: str,
+        source_id: str,
+        migrated_associated_resources: list[tuple[str, str, str]],
+    ) -> str:
+        for (
+            assoc_resource_type,
+            assoc_source_id,
+            assoc_destination_id,
+        ) in migrated_associated_resources:
+            if resource_type == assoc_resource_type and source_id == assoc_source_id:
+                return assoc_destination_id
+        raise exception.NotFound(
+            "Couldn't find migrated associated resource: %s %s - %s"
+            % (resource_type, source_id, migrated_associated_resources)
+        )

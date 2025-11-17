@@ -31,7 +31,7 @@ def create_tables():
 @session_utils.ensure_session
 def get_migrations(
     order_by="created_at",
-    ascending=True,
+    ascending=False,
     session=None,
     include_archived=False,
     **filters,

@@ -27,8 +27,17 @@ class ImageHandler(base.BaseMigrationHandler):
         """Describe the implementation status."""
         return constants.IMPL_PARTIAL
 
-    def perform_individual_migration(self, resource_id: str):
+    def perform_individual_migration(
+        self,
+        resource_id: str,
+        migrated_associated_resources: list[tuple[str, str, str]],
+    ) -> str:
         """Migrate the specified resource.
+
+        :param resource_id: the resource to be migrated
+        :param migrated_associated_resources: a list of tuples describing
+            associated resources that have already been migrated.
+            Format: (resource_type, source_id, destination_id)
 
         Return the resulting resource id.
         """

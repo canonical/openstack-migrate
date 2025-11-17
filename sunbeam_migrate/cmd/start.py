@@ -18,11 +18,24 @@ LOG = logging.getLogger()
     is_flag=True,
     help="Cleanup the resources on the source side if the migration succeeds.",
 )
-def start_migration(resource_type: str, resource_id: str, cleanup_source: bool):
+@click.option(
+    "--include-dependencies",
+    is_flag=True,
+    help="Automatically migrate associated resources.",
+)
+def start_migration(
+    resource_type: str,
+    resource_id: str,
+    cleanup_source: bool,
+    include_dependencies: bool,
+):
     """Migrate an individual resource."""
     mgr = manager.SunbeamMigrationManager()
     mgr.perform_individual_migration(
-        resource_type, resource_id, cleanup_source=cleanup_source
+        resource_type,
+        resource_id,
+        cleanup_source=cleanup_source,
+        include_dependencies=include_dependencies,
     )
 
 
@@ -45,12 +58,18 @@ def start_migration(resource_type: str, resource_id: str, cleanup_source: bool):
     is_flag=True,
     help="Cleanup the resources on the source side if the migration succeeds.",
 )
+@click.option(
+    "--include-dependencies",
+    is_flag=True,
+    help="Automatically migrate associated resources.",
+)
 def start_batch_migration(
     resource_type: str,
     resource_filters: tuple[str],
     dry_run: bool,
     migrate_all: bool,
     cleanup_source: bool,
+    include_dependencies: bool,
 ):
     """Migrate multiple resources that match the filters."""
     if not resource_type:
@@ -76,4 +95,5 @@ def start_batch_migration(
         resource_filters_dict,
         dry_run=dry_run,
         cleanup_source=cleanup_source,
+        include_dependencies=include_dependencies,
     )

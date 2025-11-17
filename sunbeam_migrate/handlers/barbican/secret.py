@@ -25,8 +25,20 @@ class SecretHandler(base.BaseMigrationHandler):
         """Describe the implementation status."""
         return constants.IMPL_PARTIAL
 
-    def perform_individual_migration(self, resource_id: str):
+    def _parse_barbican_url(self, secret_url) -> str:
+        return (secret_url or "").split("/")[-1]
+
+    def perform_individual_migration(
+        self,
+        resource_id: str,
+        migrated_associated_resources: list[tuple[str, str, str]],
+    ) -> str:
         """Migrate the specified resource.
+
+        :param resource_id: the resource to be migrated
+        :param migrated_associated_resources: a list of tuples describing
+            associated resources that have already been migrated.
+            Format: (resource_type, source_id, destination_id)
 
         Return the resulting resource id.
         """
@@ -77,4 +89,5 @@ class SecretHandler(base.BaseMigrationHandler):
         return resource_ids
 
     def _delete_resource(self, resource_id: str, openstack_session):
-        openstack_session.key_manager.delete_secret(resource_id)
+        secret_id = self._parse_barbican_url(resource_id)
+        openstack_session.key_manager.delete_secret(secret_id)
