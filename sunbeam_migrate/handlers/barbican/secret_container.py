@@ -44,8 +44,8 @@ class SecretContainerHandler(base.BaseMigrationHandler):
             raise exception.NotFound(f"Secret not found: {resource_id}")
 
         associated_resources = []
-        for secret_ref in container.secret_refs:
-            associated_resources.append(("secret", secret_ref["secret_ref"]))
+        for secret_ref_dict in container.secret_refs:
+            associated_resources.append(("secret", secret_ref_dict["secret_ref"]))
 
         return associated_resources
 
@@ -78,7 +78,18 @@ class SecretContainerHandler(base.BaseMigrationHandler):
             if value:
                 kwargs[field] = value
 
-        # TODO: set secret_refs
+        secret_refs = []
+        for secret_ref_dict in source_container.secret_refs:
+            destination_ref = self._get_associated_resource_destination_id(
+                "secret",
+                secret_ref_dict["secret_ref"],
+                migrated_associated_resources)
+            secret_refs.append({
+                "name": secret_ref_dict["name"],
+                "secret_ref": destination_ref,
+            })
+        kwargs["secret_refs"] = secret_refs
+
         destination_secret = self._destination_session.key_manager.create_container(
             **kwargs
         )
