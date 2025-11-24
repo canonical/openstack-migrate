@@ -1,0 +1,49 @@
+name: Lint tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  pep8:
+    name: Coding style checks (pep8)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install tox
+        run: sudo apt-get install -y tox
+      - name: Pep8
+        run: |
+          tox -e pep8
+
+  mypy:
+    name: Type checks (mypy)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install tox
+        run: sudo apt-get install -y tox
+      - name: Install uv
+        run:  sudo snap install --classic astral-uv
+      - name: mypy
+        run: |
+          tox -e mypy
