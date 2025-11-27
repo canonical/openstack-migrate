@@ -114,4 +114,4 @@ class NetworkHandler(base.BaseMigrationHandler):
         return resource_ids
 
     def _delete_resource(self, resource_id: str, openstack_session):
-        raise NotImplementedError()
+        openstack_session.network.delete_network(resource_id, ignore_missing=True)

@@ -101,4 +101,6 @@ class SecurityGroupHandler(base.BaseMigrationHandler):
         return [sg.id for sg in source_security_groups]
 
     def _delete_resource(self, resource_id: str, openstack_session):
-        raise NotImplementedError()
+        openstack_session.network.delete_security_group(
+            resource_id, ignore_missing=True
+        )

@@ -81,7 +81,7 @@ class SubnetHandler(base.BaseMigrationHandler):
             "description",
             "dns_nameservers",
             "dns_publish_fixed_ip",
-            "enable_dhcp",
+            "is_dhcp_enabled",
             "gateway_ip",
             "host_routes",
             "ip_version",
@@ -123,4 +123,4 @@ class SubnetHandler(base.BaseMigrationHandler):
         return resource_ids
 
     def _delete_resource(self, resource_id: str, openstack_session):
-        raise NotImplementedError()
+        openstack_session.network.delete_subnet(resource_id, ignore_missing=True)

@@ -81,7 +81,7 @@ class SecurityGroupRuleHandler(base.BaseMigrationHandler):
         fields = [
             "description",
             "direction",
-            "ethertype",
+            "ether_type",
             "port_range_min",
             "port_range_max",
             "protocol",
@@ -151,4 +151,6 @@ class SecurityGroupRuleHandler(base.BaseMigrationHandler):
         return resource_ids
 
     def _delete_resource(self, resource_id: str, openstack_session):
-        raise NotImplementedError()
+        openstack_session.network.delete_security_group_rule(
+            resource_id, ignore_missing=True
+        )
