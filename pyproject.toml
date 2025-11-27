@@ -81,7 +81,8 @@ dev = [
     "types-requests",
     "types-pyyaml",
     "types-pytz",
-    "sqlalchemy2-stubs",
+    # We'll skip the sqlalchemy stubs for now as it conflicts with mypy.
+    # "sqlalchemy2-stubs",
     # For validation feature
     "croniter",
     "ruff",
@@ -367,7 +368,7 @@ constraint-dependencies = [
     "SQLAlchemy-Utils===0.41.2",
     "retryz===0.1.9",
     "pluggy===1.5.0",
-    "coverage===7.6.12",
+    "coverage===7.12.0",
     "freezegun===1.5.1",
     "mdurl===0.1.2",
     "toml===0.10.2",
