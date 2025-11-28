@@ -24,14 +24,13 @@ def _create_test_flavor(
         "description": "sunbeam-migrate flavor test",
     }
     flavor_kwargs.update(overrides)
+    if not extra_specs:
+        extra_specs = {"hw:cpu_policy": "dedicated"}
 
     flavor = session.compute.create_flavor(**flavor_kwargs)
+    session.compute.create_flavor_extra_specs(flavor, extra_specs)
 
-    specs = extra_specs if extra_specs is not None else {"hw:cpu_policy": "dedicated"}
-    if specs:
-        session.compute.create_flavor_extra_specs(flavor, **specs)
-
-    # Refresh the flavor information so that the returned object mirrors the API.
+    # Refresh the flavor information.
     return session.compute.get_flavor(flavor.id)
 
 
@@ -122,21 +121,16 @@ def test_migrate_flavor_skips_existing_destination(
     test_destination_session,
 ):
     shared_name = test_utils.get_test_resource_name()
-    source_extra_specs = {"hw:cpu_policy": "dedicated"}
-    dest_extra_specs = {"existing": "destination"}
 
     source_flavor = _create_test_flavor(
         test_source_session,
         name=shared_name,
-        extra_specs=source_extra_specs,
     )
     request.addfinalizer(lambda: _delete_flavor(test_source_session, source_flavor.id))
 
     destination_flavor = _create_test_flavor(
         test_destination_session,
         name=shared_name,
-        extra_specs=dest_extra_specs,
-        ram=1024,
     )
     request.addfinalizer(
         lambda: _delete_flavor(test_destination_session, destination_flavor.id)

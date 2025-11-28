@@ -1,10 +1,13 @@
 # SPDX-FileCopyrightText: 2025 - Canonical Ltd
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
 from typing import Any
 
 from sunbeam_migrate import exception
 from sunbeam_migrate.handlers import base
+
+LOG = logging.getLogger()
 
 
 class FlavorHandler(base.BaseMigrationHandler):
@@ -32,6 +35,11 @@ class FlavorHandler(base.BaseMigrationHandler):
             source_flavor.name, ignore_missing=True
         )
         if existing_flavor:
+            # TODO: we might consider moving those checks on the manager side
+            # and have a consistent approach across handlers.
+            LOG.warning(
+                "Flavor already exists: %s %s", existing_flavor.id, existing_flavor.name
+            )
             return existing_flavor.id
 
         flavor_kwargs = self._build_flavor_kwargs(source_flavor)
@@ -39,10 +47,10 @@ class FlavorHandler(base.BaseMigrationHandler):
             **flavor_kwargs
         )
 
-        extra_specs = getattr(source_flavor, "extra_specs", None) or {}
+        extra_specs = getattr(source_flavor, "extra_specs", None)
         if extra_specs:
             self._destination_session.compute.create_flavor_extra_specs(
-                destination_flavor, **extra_specs
+                destination_flavor, extra_specs
             )
 
         return destination_flavor.id
