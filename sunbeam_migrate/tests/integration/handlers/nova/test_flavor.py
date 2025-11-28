@@ -35,7 +35,6 @@ def _create_test_flavor(
 
 
 def _check_migrated_flavor(source_flavor, destination_flavor, destination_session):
-    dest_details = destination_session.compute.get_flavor(destination_flavor.id)
     fields = [
         "name",
         "ram",
@@ -49,12 +48,12 @@ def _check_migrated_flavor(source_flavor, destination_flavor, destination_sessio
     ]
     for field in fields:
         assert getattr(source_flavor, field, None) == getattr(
-            dest_details, field, None
+            destination_flavor, field, None
         ), f"{field} attribute mismatch"
 
-    source_specs = getattr(source_flavor, "extra_specs", {}) or {}
-    dest_specs = getattr(dest_details, "extra_specs", {}) or {}
-    assert dest_specs == source_specs, "extra_specs mismatch"
+    source_specs = getattr(source_flavor, "extra_specs", {})
+    dest_specs = getattr(destination_flavor, "extra_specs", {})
+    assert dest_specs == source_specs
 
 
 def _delete_flavor(session, flavor_id: str):
