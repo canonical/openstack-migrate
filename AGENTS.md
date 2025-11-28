@@ -53,6 +53,26 @@
    where "destination-volume-id" is the uuid of the migrated volume reported by the
    destination cloud.
 
+## Integration tests
+  - "tests/integration" contains integration tests for each migration handler.
+    File path format: "tests/integration/handlers/<service_name>/test_<resource_type>.py"
+  - We're using the Pytest framework
+  - conftest.py defines fixtures that create temporary Openstack credentials
+    and cleanup the resources at the end of the tests.
+  - The test accepts a config file similar to the one used by sunbeam-migrate.
+  - There are fixtures that return the test config path as well as OpenStack SDK
+    sessions for both the source and destination clouds.
+  - The tests should not use the "base_" fixtures directly, those are meant to
+    set up the temporary credentials and configs.
+  - Agents may use the existing tests as reference.
+  - Pytest finalizers are used to remove test resources.
+  - The integration tests use the temporary test credentials to create resources
+    and then migrate them. Individual migrations receive the source resource IDs.
+  - The tests perform individual as well as batch migrations, often filtering
+    resources by id or by the owner project and passing "--cleanup-source".
+  - If the migration handler does not support resource filters, batch migrations
+    should be skipped by the tests.
+
 ## Other rules
 
 - AI agents should not generate unit or integration tests yet unless asked to.
