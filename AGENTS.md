@@ -72,6 +72,8 @@
     resources by id or by the owner project and passing "--cleanup-source".
   - If the migration handler does not support resource filters, batch migrations
     should be skipped by the tests.
+  - The "get_destination_resource_id" helper can be used to retrieve the id of
+    the migrated resource, as reported by the destination cloud.
 
 ## Other rules
 
