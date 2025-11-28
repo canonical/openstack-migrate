@@ -271,10 +271,6 @@ $ sunbeam-migrate list
 
 ## TODOs
 
-* Automatically migrate dependent/component resources.
-  * We could add some flags, making this optional
-    * --cascade -> migrate component resources (e.g. network -> subnet)
-    * (implemented) --include-dependencies -> e.g. subnet -> network, instance -> volume, etc
 * Add new resource handlers.
 * Implement manager unit tests
 * Consider having a "mappings.yaml" file, allowing a different resource from the destination
