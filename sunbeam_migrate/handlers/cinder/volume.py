@@ -155,6 +155,10 @@ class VolumeHandler(base.BaseMigrationHandler):
                 interval=5,
                 wait=CONF.volume_upload_timeout,
             )
+            if source_volume.volume_image_metadata:
+                self._destination_session.block_storage.set_volume_image_metadata(
+                    destination_volume, metadata=source_volume.volume_image_metadata
+                )
         finally:
             LOG.info("Deleting temporary image on source side: %s", source_image.id)
             self._source_session.delete_image(source_image.id)
@@ -189,7 +193,7 @@ class VolumeHandler(base.BaseMigrationHandler):
             "name",
             "is_multiattach",
             "size",
-            "volume_image_metadata",
+            "metadata",
         ]
         if CONF.preserve_volume_availability_zone:
             fields.append("availability_zone")

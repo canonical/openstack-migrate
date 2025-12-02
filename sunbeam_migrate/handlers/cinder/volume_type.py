@@ -97,4 +97,11 @@ class VolumeTypeHandler(base.BaseMigrationHandler):
         return resource_ids
 
     def _delete_resource(self, resource_id: str, openstack_session):
-        openstack_session.block_storage.delete_type(resource_id, ignore_missing=True)
+        try:
+            openstack_session.block_storage.delete_type(
+                resource_id, ignore_missing=True
+            )
+        except Exception:
+            # TODO: stop suppressing this once we include a flag along with
+            # the resource dependencies, specifying which ones can be deleted.
+            LOG.warning("Unable to delete volume type, it's probably still in use.")
