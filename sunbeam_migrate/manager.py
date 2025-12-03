@@ -44,13 +44,25 @@ class SunbeamMigrationManager:
         )
 
         if include_members:
-            self._migrate_member_resources(
+            migrated_member_resources = self._migrate_member_resources(
                 handler=handler,
                 resource_id=resource_id,
                 cleanup_source=cleanup_source,
                 include_dependencies=include_dependencies,
                 include_members=include_members,
             )
+            try:
+                handler.connect_member_resources_to_parent(
+                    parent_resource_type="",
+                    parent_resource_id=migration.destination_id,
+                    migrated_member_resources=migrated_member_resources,
+                )
+            except Exception as ex:
+                LOG.error(
+                    "Failed to connect member resources to parent %s: %r",
+                    resource_id,
+                    ex,
+                )
 
         return migration
 
@@ -98,6 +110,35 @@ class SunbeamMigrationManager:
                 for assoc_resource_type, assoc_resource_id in associated_resources[
                     "pending"
                 ]:
+                    # Check if this resource is already being migrated
+                    existing = db_api.get_migrations(
+                        source_id=assoc_resource_id,
+                        resource_type=assoc_resource_type,
+                    )
+                    if existing:
+                        if existing[0].status == constants.STATUS_COMPLETED:
+                            LOG.info(
+                                "Associated resource %s %s already completed"
+                                " (migration %s), "
+                                "skipping duplicate migration",
+                                assoc_resource_type,
+                                assoc_resource_id,
+                                existing[0].uuid,
+                            )
+                            # Add it to associated_migrations for cleanup tracking
+                            associated_migrations.append(existing[0])
+                            continue
+                        elif existing[0].status == constants.STATUS_IN_PROGRESS:
+                            LOG.info(
+                                "Associated resource %s %s already in progress"
+                                " (migration %s), "
+                                "will be available once migration completes",
+                                assoc_resource_type,
+                                assoc_resource_id,
+                                existing[0].uuid,
+                            )
+                            continue
+
                     LOG.info(
                         "Migrating associated %s resource: %s",
                         assoc_resource_type,
@@ -162,21 +203,38 @@ class SunbeamMigrationManager:
         cleanup_source: bool,
         include_dependencies: bool,
         include_members: bool,
-    ) -> None:
+    ) -> list[tuple[str, str, str]]:
         """Handle member resource migration logic."""
+        migrated_member_resources: list[tuple[str, str, str]] = []
         member_resources = handler.get_member_resources(resource_id)
         for member_resource_type, member_resource_id in member_resources:
+            # Check if this resource is already migrated or being migrated
+            # (could have been migrated as an associated resource earlier)
             migrations = db_api.get_migrations(
                 source_id=member_resource_id,
                 resource_type=member_resource_type,
             )
-            if migrations and migrations[0].status == constants.STATUS_COMPLETED:
-                LOG.info(
-                    "Member resource already migrated, skipping: %s %s",
-                    member_resource_type,
-                    member_resource_id,
-                )
-                continue
+            if migrations:
+                latest = migrations[0]
+                if latest.status == constants.STATUS_COMPLETED:
+                    LOG.info(
+                        "Member resource %s %s already completed (migration %s), "
+                        "skipping duplicate migration",
+                        member_resource_type,
+                        member_resource_id,
+                        latest.uuid,
+                    )
+                    continue
+                elif latest.status == constants.STATUS_IN_PROGRESS:
+                    LOG.info(
+                        "Member resource %s %s already in progress (migration %s), "
+                        "skipping duplicate migration",
+                        member_resource_type,
+                        member_resource_id,
+                        latest.uuid,
+                    )
+                    continue
+                # If status is FAILED, we'll retry by continuing below
 
             LOG.info(
                 "Migrating member %s resource: %s",
@@ -184,13 +242,25 @@ class SunbeamMigrationManager:
                 member_resource_id,
             )
             try:
-                self.perform_individual_migration(
+                migrated_member = self.perform_individual_migration(
                     member_resource_type,
                     member_resource_id,
                     cleanup_source=cleanup_source,
                     include_dependencies=include_dependencies,
                     include_members=include_members,
                 )
+                if (
+                    migrated_member.resource_type
+                    and migrated_member.source_id
+                    and migrated_member.destination_id
+                ):
+                    migrated_member_resources.append(
+                        (
+                            migrated_member.resource_type,
+                            migrated_member.source_id,
+                            migrated_member.destination_id,
+                        )
+                    )
             except Exception as ex:
                 LOG.error(
                     "Failed to migrate member resource %s %s: %r",
@@ -198,6 +268,8 @@ class SunbeamMigrationManager:
                     member_resource_id,
                     ex,
                 )
+
+        return migrated_member_resources
 
     def _get_associated_resources(
         self,
