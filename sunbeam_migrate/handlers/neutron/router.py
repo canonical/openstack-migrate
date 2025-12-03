@@ -145,7 +145,6 @@ class RouterHandler(base.BaseMigrationHandler):
 
     def connect_member_resources_to_parent(
         self,
-        parent_resource_type: str,
         parent_resource_id: str | None,
         migrated_member_resources: list[tuple[str, str, str]],
     ):
@@ -155,9 +154,6 @@ class RouterHandler(base.BaseMigrationHandler):
             member_source_id,
             dest_subnet_id,
         ) in migrated_member_resources:
-            if resource_type != "subnet":
-                continue
-
             LOG.info(
                 "Attaching internal subnet %s (dest %s) to router %s",
                 member_source_id,
