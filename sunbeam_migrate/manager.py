@@ -53,7 +53,6 @@ class SunbeamMigrationManager:
             )
             try:
                 handler.connect_member_resources_to_parent(
-                    parent_resource_type="",
                     parent_resource_id=migration.destination_id,
                     migrated_member_resources=migrated_member_resources,
                 )
