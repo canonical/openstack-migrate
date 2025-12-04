@@ -58,8 +58,10 @@ class ShareTypeHandler(base.BaseMigrationHandler):
             return existing_type.id
 
         type_kwargs = self._build_type_kwargs(source_type)
-        destination_type = self._destination_session.shared_file_system.create_share_type(
-            **type_kwargs
+        destination_type = (
+            self._destination_session.shared_file_system.create_share_type(
+                **type_kwargs
+            )
         )
 
         extra_specs = getattr(source_type, "extra_specs", None)
@@ -107,4 +109,3 @@ class ShareTypeHandler(base.BaseMigrationHandler):
             # TODO: stop suppressing this once we include a flag along with
             # the resource dependencies, specifying which ones can be deleted.
             LOG.warning("Unable to delete share type, it's probably still in use.")
-

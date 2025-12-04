@@ -42,4 +42,3 @@ def check_migrated_share_type(source_share_type, destination_share_type):
 
 def delete_share_type(session, share_type_id: str):
     session.shared_file_system.delete_share_type(share_type_id, ignore_missing=True)
-

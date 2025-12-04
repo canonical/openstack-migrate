@@ -17,9 +17,7 @@ def test_migrate_share_type_with_cleanup(
         test_source_session, extra_specs=extra_specs
     )
     request.addfinalizer(
-        lambda: manila_test_utils.delete_share_type(
-            test_source_session, share_type.id
-        )
+        lambda: manila_test_utils.delete_share_type(test_source_session, share_type.id)
     )
 
     test_utils.call_migrate(
@@ -42,4 +40,3 @@ def test_migrate_share_type_with_cleanup(
     assert not test_source_session.shared_file_system.find_share_type(share_type.id), (
         "cleanup-source didn't remove the resource"
     )
-
