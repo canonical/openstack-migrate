@@ -1,15 +1,10 @@
 # SPDX-FileCopyrightText: 2025 - Canonical Ltd
 # SPDX-License-Identifier: Apache-2.0
 
-from manilaclient import client as manila_client
 from manilaclient import exceptions as manila_exc
 
 from sunbeam_migrate.tests.integration import utils as test_utils
-
-
-def _get_manila_client(session):
-    """Get a manilaclient instance from an OpenStack SDK session."""
-    return manila_client.Client("2", session=session.auth)
+from sunbeam_migrate.utils import client_utils
 
 
 def create_test_share_type(
@@ -19,7 +14,7 @@ def create_test_share_type(
     extra_specs: dict[str, str] | None = None,
     **overrides,
 ):
-    manila = _get_manila_client(session)
+    manila = client_utils.get_manila_client(session)
     share_type_kwargs = {
         "name": name or test_utils.get_test_resource_name(),
         "is_public": True,
@@ -48,7 +43,7 @@ def check_migrated_share_type(source_share_type, destination_share_type):
 
 
 def delete_share_type(session, share_type_id: str):
-    manila = _get_manila_client(session)
+    manila = client_utils.get_manila_client(session)
     try:
         manila.share_types.delete(share_type_id)
     except manila_exc.NotFound:

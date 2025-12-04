@@ -4,11 +4,11 @@
 import logging
 from typing import Any
 
-from manilaclient import client as manila_client
 from manilaclient import exceptions as manila_exc
 
 from sunbeam_migrate import exception
 from sunbeam_migrate.handlers import base
+from sunbeam_migrate.utils import client_utils
 
 LOG = logging.getLogger()
 
@@ -27,11 +27,6 @@ class ShareTypeHandler(base.BaseMigrationHandler):
         """
         return []
 
-    def _get_manila_client(self, openstack_session):
-        """Get a manilaclient instance from an OpenStack SDK session."""
-        # Use the session's auth to create a manila client
-        return manila_client.Client("2", session=openstack_session.auth)
-
     def perform_individual_migration(
         self,
         resource_id: str,
@@ -46,13 +41,13 @@ class ShareTypeHandler(base.BaseMigrationHandler):
 
         Return the resulting resource id.
         """
-        source_manila = self._get_manila_client(self._source_session)
+        source_manila = client_utils.get_manila_client(self._source_session)
         try:
             source_type = source_manila.share_types.get(resource_id)
         except manila_exc.NotFound:
             raise exception.NotFound(f"Share type not found: {resource_id}")
 
-        dest_manila = self._get_manila_client(self._destination_session)
+        dest_manila = client_utils.get_manila_client(self._destination_session)
         # Check if share type with same name already exists
         try:
             existing_types = dest_manila.share_types.list(
@@ -102,7 +97,7 @@ class ShareTypeHandler(base.BaseMigrationHandler):
         """
         self._validate_resource_filters(resource_filters)
 
-        source_manila = self._get_manila_client(self._source_session)
+        source_manila = client_utils.get_manila_client(self._source_session)
         resource_ids: list[str] = []
         for share_type in source_manila.share_types.list():
             resource_ids.append(share_type.id)
@@ -110,7 +105,7 @@ class ShareTypeHandler(base.BaseMigrationHandler):
 
     def _delete_resource(self, resource_id: str, openstack_session):
         try:
-            manila = self._get_manila_client(openstack_session)
+            manila = client_utils.get_manila_client(openstack_session)
             manila.share_types.delete(resource_id)
         except manila_exc.NotFound:
             # Resource already deleted or doesn't exist
