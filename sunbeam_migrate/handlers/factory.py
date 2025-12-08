@@ -15,6 +15,11 @@ MIGRATION_HANDLERS = {
     "volume-type": "sunbeam_migrate.handlers.cinder.volume_type.VolumeTypeHandler",
     # Glance handlers
     "image": "sunbeam_migrate.handlers.glance.image.ImageHandler",
+    # Keystone handlers
+    "domain": "sunbeam_migrate.handlers.keystone.domain.DomainHandler",
+    "project": "sunbeam_migrate.handlers.keystone.project.ProjectHandler",
+    "role": "sunbeam_migrate.handlers.keystone.role.RoleHandler",
+    "user": "sunbeam_migrate.handlers.keystone.user.UserHandler",
     # Manila handlers
     "share": "sunbeam_migrate.handlers.manila.share.ShareHandler",
     "share-type": "sunbeam_migrate.handlers.manila.share_type.ShareTypeHandler",
