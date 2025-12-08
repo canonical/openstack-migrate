@@ -28,9 +28,9 @@ class UserHandler(base.BaseMigrationHandler):
     def get_associated_resource_types(self) -> list[str]:
         """Get a list of associated resource types.
 
-        Users depend on domains.
+        Users depend on domains and roles (for role assignments).
         """
-        return ["domain"]
+        return ["domain", "role"]
 
     def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
         """Get a list of associated resources.
@@ -45,6 +45,11 @@ class UserHandler(base.BaseMigrationHandler):
             raise exception.NotFound(f"User not found: {resource_id}")
 
         associated_resources.append(("domain", source_user.domain_id))
+
+        for assignment in self._source_session.identity.role_assignments(
+            user=source_user.id,
+        ):
+            associated_resources.append(("role", assignment.role["id"]))
 
         return associated_resources
 
@@ -71,7 +76,82 @@ class UserHandler(base.BaseMigrationHandler):
         )
         destination_user = self._destination_session.identity.create_user(**user_kwargs)
 
+        # Recreate role assignments.
+        try:
+            self._recreate_role_assignments(
+                source_user, destination_user, migrated_associated_resources
+            )
+        except Exception as ex:
+            LOG.warning(
+                "Failed to recreate role assignments for user %s: %r",
+                source_user.id,
+                ex,
+            )
+
         return destination_user.id
+
+    def _recreate_role_assignments(
+        self,
+        source_user,
+        destination_user,
+        migrated_associated_resources: list[tuple[str, str, str]],
+    ):
+        """Recreate role assignments for the migrated user."""
+        for assignment in self._source_session.identity.role_assignments(
+            user=source_user.id
+        ):
+            role_id = assignment.role["id"]
+
+            # Get migrated role ID
+            dest_role_id = self._get_associated_resource_destination_id(
+                "role", role_id, migrated_associated_resources
+            )
+            dest_role = self._destination_session.identity.get_role(dest_role_id)
+
+            # Check if this is a project-level or domain-level assignment
+            project_id = None
+            domain_id = None
+            if assignment.scope:
+                if assignment.scope.project:
+                    project_id = assignment.scope.project.get("id")
+                if assignment.scope.domain:
+                    domain_id = assignment.scope.domain.get("id")
+
+            # Recreate project-level assignment
+            if project_id:
+                dest_project_id = self._get_associated_resource_destination_id(
+                    "project", project_id, migrated_associated_resources
+                )
+                dest_project = self._destination_session.identity.get_project(
+                    dest_project_id
+                )
+                self._destination_session.identity.assign_project_role_to_user(
+                    dest_project, destination_user, dest_role
+                )
+                LOG.info(
+                    "Recreated project role assignment: user %s, role %s, project %s",
+                    destination_user.id,
+                    dest_role_id,
+                    dest_project_id,
+                )
+
+            # Recreate domain-level assignment
+            elif domain_id:
+                dest_domain_id = self._get_associated_resource_destination_id(
+                    "domain", domain_id, migrated_associated_resources
+                )
+                dest_domain = self._destination_session.identity.get_domain(
+                    dest_domain_id
+                )
+                self._destination_session.identity.assign_domain_role_to_user(
+                    dest_domain, destination_user, dest_role
+                )
+                LOG.info(
+                    "Recreated domain role assignment: user %s, role %s, domain %s",
+                    destination_user.id,
+                    dest_role_id,
+                    dest_domain_id,
+                )
 
     def _build_user_kwargs(
         self,
