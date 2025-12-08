@@ -179,3 +179,36 @@ def delete_user(session, user_id: str):
         pass
 
     session.identity.delete_user(user_id, ignore_missing=True)
+
+
+def create_test_role(
+    session,
+    *,
+    name: str | None = None,
+    description: str | None = None,
+    **overrides,
+):
+    role_kwargs = {
+        "name": name or test_utils.get_test_resource_name(),
+        "description": description or "sunbeam-migrate role test",
+    }
+    role_kwargs.update(overrides)
+    role = session.identity.create_role(**role_kwargs)
+
+    # Refresh the role information.
+    return session.identity.get_role(role.id)
+
+
+def check_migrated_role(source_role, destination_role):
+    fields = [
+        "name",
+        "description",
+    ]
+    for field in fields:
+        assert getattr(source_role, field, None) == getattr(
+            destination_role, field, None
+        ), f"{field} attribute mismatch"
+
+
+def delete_role(session, role_id: str):
+    session.identity.delete_role(role_id, ignore_missing=True)

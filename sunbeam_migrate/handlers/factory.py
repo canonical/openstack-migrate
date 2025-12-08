@@ -18,6 +18,7 @@ MIGRATION_HANDLERS = {
     # Keystone handlers
     "domain": "sunbeam_migrate.handlers.keystone.domain.DomainHandler",
     "project": "sunbeam_migrate.handlers.keystone.project.ProjectHandler",
+    "role": "sunbeam_migrate.handlers.keystone.role.RoleHandler",
     "user": "sunbeam_migrate.handlers.keystone.user.UserHandler",
     # Manila handlers
     "share": "sunbeam_migrate.handlers.manila.share.ShareHandler",
