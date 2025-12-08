@@ -186,12 +186,15 @@ def create_test_role(
     *,
     name: str | None = None,
     description: str | None = None,
+    domain_id: str | None = None,
     **overrides,
 ):
     role_kwargs = {
         "name": name or test_utils.get_test_resource_name(),
         "description": description or "sunbeam-migrate role test",
     }
+    if domain_id:
+        role_kwargs["domain_id"] = domain_id
     role_kwargs.update(overrides)
     role = session.identity.create_role(**role_kwargs)
 
@@ -199,7 +202,12 @@ def create_test_role(
     return session.identity.get_role(role.id)
 
 
-def check_migrated_role(source_role, destination_role):
+def check_migrated_role(
+    source_session,
+    destination_session,
+    source_role,
+    destination_role,
+):
     fields = [
         "name",
         "description",
@@ -208,6 +216,15 @@ def check_migrated_role(source_role, destination_role):
         assert getattr(source_role, field, None) == getattr(
             destination_role, field, None
         ), f"{field} attribute mismatch"
+
+    # Check domain preservation if the role is domain-specific
+    if hasattr(source_role, "domain_id") and source_role.domain_id:
+        assert hasattr(destination_role, "domain_id") and destination_role.domain_id
+        source_domain = source_session.identity.get_domain(source_role.domain_id)
+        destination_domain = destination_session.identity.get_domain(
+            destination_role.domain_id
+        )
+        assert source_domain.name == destination_domain.name
 
 
 def delete_role(session, role_id: str):
