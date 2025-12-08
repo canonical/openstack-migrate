@@ -43,7 +43,7 @@ class RoleHandler(base.BaseMigrationHandler):
             raise exception.NotFound(f"Role not found: {resource_id}")
 
         # Roles can be domain-specific or global (domain_id can be None)
-        if hasattr(source_role, "domain_id") and source_role.domain_id:
+        if source_role.domain_id:
             associated_resources.append(("domain", source_role.domain_id))
 
         return associated_resources
@@ -108,7 +108,7 @@ class RoleHandler(base.BaseMigrationHandler):
                 kwargs[field] = value
 
         # Roles can be domain-specific or global (domain_id can be None)
-        if hasattr(source_role, "domain_id") and source_role.domain_id:
+        if source_role.domain_id:
             destination_domain_id = self._get_associated_resource_destination_id(
                 "domain",
                 source_role.domain_id,

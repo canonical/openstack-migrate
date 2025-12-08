@@ -218,8 +218,8 @@ def check_migrated_role(
         ), f"{field} attribute mismatch"
 
     # Check domain preservation if the role is domain-specific
-    if hasattr(source_role, "domain_id") and source_role.domain_id:
-        assert hasattr(destination_role, "domain_id") and destination_role.domain_id
+    if source_role.domain_id:
+        assert destination_role.domain_id
         source_domain = source_session.identity.get_domain(source_role.domain_id)
         destination_domain = destination_session.identity.get_domain(
             destination_role.domain_id

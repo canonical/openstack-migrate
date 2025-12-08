@@ -70,10 +70,7 @@ class ProjectHandler(base.BaseMigrationHandler):
         for user in self._source_session.identity.users(
             domain_id=source_project.domain_id
         ):
-            if (
-                hasattr(user, "default_project_id")
-                and user.default_project_id == source_project.id
-            ):
+            if user.default_project_id == source_project.id:
                 member_resources.append(("user", user.id))
 
         return member_resources

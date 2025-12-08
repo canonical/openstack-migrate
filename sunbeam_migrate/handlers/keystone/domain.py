@@ -52,7 +52,7 @@ class DomainHandler(base.BaseMigrationHandler):
         # Add users belonging to this domain that don't have a project assigned
         for user in self._source_session.identity.users(domain_id=source_domain.id):
             # Only include users without a default_project_id
-            if not hasattr(user, "default_project_id") or not user.default_project_id:
+            if not user.default_project_id:
                 member_resources.append(("user", user.id))
 
         return member_resources
