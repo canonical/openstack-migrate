@@ -58,8 +58,10 @@ class InstanceHandler(base.BaseMigrationHandler):
         #     associated_resources.append(("image", source_instance.image["id"]))
 
         # Flavor
-        if source_instance.flavor and source_instance.flavor.get("id"):
-            associated_resources.append(("flavor", source_instance.flavor["id"]))
+        source_flavor = self._source_session.compute.find_flavor(
+            source_instance.flavor.id
+        )
+        associated_resources.append(("flavor", source_flavor.id))
 
         # Keypair
         if source_instance.key_name:
@@ -88,6 +90,11 @@ class InstanceHandler(base.BaseMigrationHandler):
                 associated_resources.append(("volume", volume_id))
 
         # Ports attached to the instance
+        #
+        # TODO: manually created ports are not deleted along with the instance.
+        # However, it allows us to pass port settings that wouldn't be accessible
+        # otherwise (e.g. port mac, vnic type, etc). That being considered, we should
+        # have a config option, e.g. `migrate_instance_ports_individually`.
         for port in self._source_session.network.ports(device_id=source_instance.id):
             associated_resources.append(("port", port.id))
 
@@ -98,8 +105,8 @@ class InstanceHandler(base.BaseMigrationHandler):
         rand = int.from_bytes(os.urandom(4))
         image_name = f"instmigr-{source_instance.id}-{rand}"
         LOG.info("Uploading instance %s to image: %s", source_instance.id, image_name)
-        image = self._source_session.compute.create_image(
-            source_instance.id, image_name
+        image = self._source_session.compute.create_server_image(
+            source_instance, image_name
         )
         LOG.info("Waiting for instance upload to complete. Image id: %s", image.id)
         glance_image = self._source_session.get_image(image.id)
@@ -131,6 +138,10 @@ class InstanceHandler(base.BaseMigrationHandler):
         if not source_instance:
             raise exception.NotFound(f"Instance not found: {resource_id}")
 
+        source_flavor = self._source_session.compute.find_flavor(
+            source_instance.flavor.id
+        )
+
         destination_image_id: str | None = None
         boot_volume_id: str | None = None
         source_image: Any = None
@@ -149,7 +160,7 @@ class InstanceHandler(base.BaseMigrationHandler):
                 LOG.error("Failed to migrate instance image: %r", ex)
                 # Clean up source image on error
                 if source_image:
-                    self._source_session.delete_image(
+                    self._source_session.image.delete_image(
                         source_image.id, ignore_missing=True
                     )
                 raise
@@ -183,6 +194,7 @@ class InstanceHandler(base.BaseMigrationHandler):
             # Build instance creation kwargs
             instance_kwargs = self._build_instance_kwargs(
                 source_instance,
+                source_flavor.id,
                 destination_image_id,
                 boot_volume_id,
                 migrated_associated_resources,
@@ -205,14 +217,16 @@ class InstanceHandler(base.BaseMigrationHandler):
             # Clean up temporary images after instance is created
             if source_image:
                 LOG.info("Deleting temporary image on source side: %s", source_image.id)
-                self._source_session.delete_image(source_image.id, ignore_missing=True)
+                self._source_session.image.delete_image(
+                    source_image.id, ignore_missing=True
+                )
 
             if destination_image_id:
                 LOG.info(
                     "Deleting temporary image on destination side: %s",
                     destination_image_id,
                 )
-                self._destination_session.delete_image(
+                self._destination_session.image.delete_image(
                     destination_image_id, ignore_missing=True
                 )
 
@@ -222,6 +236,7 @@ class InstanceHandler(base.BaseMigrationHandler):
     def _build_instance_kwargs(
         self,
         source_instance: Any,
+        source_flavor_id: str,
         destination_image_id: str | None,
         boot_volume_id: str | None,
         migrated_associated_resources: list[tuple[str, str, str]],
@@ -232,13 +247,12 @@ class InstanceHandler(base.BaseMigrationHandler):
         }
 
         # Flavor
-        if source_instance.flavor and source_instance.flavor.get("id"):
-            dest_flavor_id = self._get_associated_resource_destination_id(
-                "flavor",
-                source_instance.flavor["id"],
-                migrated_associated_resources,
-            )
-            kwargs["flavor_id"] = dest_flavor_id
+        dest_flavor_id = self._get_associated_resource_destination_id(
+            "flavor",
+            source_flavor_id,
+            migrated_associated_resources,
+        )
+        kwargs["flavor_id"] = dest_flavor_id
 
         # Keypair
         if source_instance.key_name:
@@ -317,7 +331,7 @@ class InstanceHandler(base.BaseMigrationHandler):
 
         for field in optional_fields:
             value = getattr(source_instance, field, None)
-            if value is not None:
+            if value not in (None, ""):
                 kwargs[field] = value
 
         return kwargs

@@ -7,3 +7,4 @@ STATUS_FAILED = "failed"
 STATUS_SOURCE_CLEANUP_FAILED = "source-cleanup-failed"
 
 MANILA_MICROVERSION = "2.45"
+NOVA_MICROVERSION = "2.93"  # Zed

@@ -388,6 +388,11 @@ $ sunbeam-migrate show fd91c637-7b91-4fb6-9bd6-afb84c9d79a1
   * if enabled, projects and users may be reported as associated resources.
 * Add batch migration tests for every supported resource type.
 * Replace "owner-id" filters with "project-id" and/or "user-id".
+* Define a pydantic structure for associated resources in order to include additional information.
+  * The handlers should specify if the referenced associated resource should be deleted or
+    not.
+  * If it's a one-to-many relation, the associated resource should
+    not be deleted (e.g. flavor, volume type, share type, etc).
 
 ## Functional tests
 

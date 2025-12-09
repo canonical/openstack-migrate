@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from sunbeam_migrate.tests.integration import utils as test_utils
+from sunbeam_migrate.tests.integration.handlers.nova import utils as nova_utils
 
 
 def _create_test_flavor(
@@ -34,28 +35,6 @@ def _create_test_flavor(
     return session.compute.get_flavor(flavor.id)
 
 
-def _check_migrated_flavor(source_flavor, destination_flavor, destination_session):
-    fields = [
-        "name",
-        "ram",
-        "vcpus",
-        "disk",
-        "swap",
-        "ephemeral",
-        "rxtx_factor",
-        "is_public",
-        "description",
-    ]
-    for field in fields:
-        assert getattr(source_flavor, field, None) == getattr(
-            destination_flavor, field, None
-        ), f"{field} attribute mismatch"
-
-    source_specs = getattr(source_flavor, "extra_specs", {})
-    dest_specs = getattr(destination_flavor, "extra_specs", {})
-    assert dest_specs == source_specs
-
-
 def _delete_flavor(session, flavor_id: str):
     session.compute.delete_flavor(flavor_id, ignore_missing=True)
 
@@ -81,7 +60,7 @@ def test_migrate_flavor(
         lambda: _delete_flavor(test_destination_session, dest_flavor.id)
     )
 
-    _check_migrated_flavor(flavor, dest_flavor, test_destination_session)
+    nova_utils.check_migrated_flavor(flavor, dest_flavor)
 
 
 def test_migrate_flavor_with_cleanup(
@@ -105,7 +84,7 @@ def test_migrate_flavor_with_cleanup(
         lambda: _delete_flavor(test_destination_session, dest_flavor.id)
     )
 
-    _check_migrated_flavor(flavor, dest_flavor, test_destination_session)
+    nova_utils.check_migrated_flavor(flavor, dest_flavor)
 
     assert not test_source_session.compute.find_flavor(flavor.id), (
         "cleanup-source didn't remove the resource"
