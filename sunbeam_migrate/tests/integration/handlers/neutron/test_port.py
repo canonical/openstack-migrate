@@ -1,13 +1,13 @@
 # SPDX-FileCopyrightText: 2025 - Canonical Ltd
 # SPDX-License-Identifier: Apache-2.0
 
-from openstack import exceptions as openstack_exc
-
 from sunbeam_migrate.tests.integration import utils as test_utils
 from sunbeam_migrate.tests.integration.handlers.neutron import utils as neutron_utils
 
 
-def _create_test_port(session, network, subnet=None, security_group=None, fixed_ip=None):
+def _create_test_port(
+    session, network, subnet=None, security_group=None, fixed_ip=None
+):
     port_kwargs = {
         "network_id": network.id,
         "name": test_utils.get_test_resource_name(),
@@ -59,7 +59,8 @@ def _check_migrated_port(source_port, destination_port):
         if "ip_address" in source_fip:
             assert "ip_address" in dest_fip, "fixed IP missing ip_address"
             assert dest_fip["ip_address"] == source_fip["ip_address"], (
-                f"fixed IP address mismatch: {dest_fip['ip_address']} != {source_fip['ip_address']}"
+                "fixed IP address mismatch: "
+                f"{dest_fip['ip_address']} != {source_fip['ip_address']}"
             )
         if "subnet_id" in source_fip:
             assert "subnet_id" in dest_fip, "fixed IP missing subnet_id"
@@ -79,16 +80,12 @@ def test_migrate_port_with_dependencies(
     """Test port migration with all associated resources and fixed IP."""
     # Create network, subnet, and security group on source
     network = neutron_utils.create_test_network(test_source_session)
-    request.addfinalizer(
-        lambda: test_source_session.network.delete_network(network.id)
-    )
+    request.addfinalizer(lambda: test_source_session.network.delete_network(network.id))
 
     subnet = neutron_utils.create_test_subnet(
         test_source_session, network, cidr="10.0.0.0/24"
     )
-    request.addfinalizer(
-        lambda: test_source_session.network.delete_subnet(subnet.id)
-    )
+    request.addfinalizer(lambda: test_source_session.network.delete_subnet(subnet.id))
 
     security_group = neutron_utils.create_test_security_group(test_source_session)
     request.addfinalizer(
@@ -135,12 +132,9 @@ def test_migrate_port_with_dependencies(
         lambda: test_destination_session.network.delete_security_group(dest_sg.id)
     )
 
-    # Find migrated port by network
-    dest_ports = list(
-        test_destination_session.network.ports(network_id=dest_network.id)
+    dest_port = test_destination_session.network.find_port(
+        port.name, ignore_missing=False
     )
-    assert dest_ports, "port was not migrated"
-    dest_port = dest_ports[0]
     request.addfinalizer(lambda: _delete_port(test_destination_session, dest_port.id))
 
     _check_migrated_port(port, dest_port)

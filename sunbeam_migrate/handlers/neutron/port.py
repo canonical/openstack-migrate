@@ -79,7 +79,7 @@ class PortHandler(base.BaseMigrationHandler):
             "admin_state_up",
             "allowed_address_pairs",
             # "binding_host_id",
-            "binding_profile",
+            # "binding_profile",
             # "binding_vif_details",
             # "binding_vif_type",
             "binding_vnic_type",

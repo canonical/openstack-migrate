@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2025 - Canonical Ltd
 # SPDX-License-Identifier: Apache-2.0
 
+from sunbeam_migrate.tests.integration import utils as test_utils
 from sunbeam_migrate.tests.integration.handlers.neutron import utils as neutron_utils
 
 
