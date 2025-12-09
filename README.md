@@ -58,6 +58,7 @@ $ sunbeam-migrate capabilities
 |  Glance  |        image        |           -           |             -             |        owner_id        |
 | Neutron  |       network       |         subnet        |             -             |        owner_id        |
 | Neutron  |        router       |         subnet        |      network, subnet      |        owner_id        |
+| Neutron  |     floating-ip     |           -           |          network          |        owner_id        |
 | Neutron  |    security-group   |  security-group-rule  |             -             |        owner_id        |
 | Neutron  | security-group-rule |           -           |       security-group      |        owner_id        |
 | Neutron  |        subnet       |           -           |          network          |        owner_id        |
