@@ -25,6 +25,7 @@ MIGRATION_HANDLERS = {
     "share-type": "sunbeam_migrate.handlers.manila.share_type.ShareTypeHandler",
     # Nova handlers
     "flavor": "sunbeam_migrate.handlers.nova.flavor.FlavorHandler",
+    "keypair": "sunbeam_migrate.handlers.nova.keypair.KeypairHandler",
     # Neutron handlers
     "router": "sunbeam_migrate.handlers.neutron.router.RouterHandler",
     "network": "sunbeam_migrate.handlers.neutron.network.NetworkHandler",

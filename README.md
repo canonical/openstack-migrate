@@ -352,7 +352,10 @@ $ sunbeam-migrate show fd91c637-7b91-4fb6-9bd6-afb84c9d79a1
   the migration status for the specified plan.
   The resource dependencies could be modeled through a tree.
 * Finalize the implementation for cross-tenant migrations and add integration tests.
+  * we can add a "multitenant_mode" option.
+  * if enabled, projects and users may be reported as associated resources.
 * Add batch migration tests for every supported resource type.
+* Replace "owner-id" filters with "project-id" and/or "user-id".
 
 ## Functional tests
 
