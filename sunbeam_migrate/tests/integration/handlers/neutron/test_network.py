@@ -143,6 +143,12 @@ def test_migrate_subnet_and_cleanup(
         ],
     )
 
+    dest_net = test_destination_session.network.find_network(network.name)
+    assert dest_net, "couldn't find migrated resource"
+    request.addfinalizer(
+        lambda: test_destination_session.network.delete_network(dest_net.id)
+    )
+
     dest_subnet = test_destination_session.network.find_subnet(subnet.name)
     assert dest_subnet, "couldn't find migrated resource"
     request.addfinalizer(
