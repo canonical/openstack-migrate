@@ -1,14 +1,7 @@
 # SPDX-FileCopyrightText: 2025 - Canonical Ltd
 # SPDX-License-Identifier: Apache-2.0
 
-from sunbeam_migrate.tests.integration import utils as test_utils
-
-
-def _create_test_network(session):
-    network = session.network.create_network(name=test_utils.get_test_resource_name())
-
-    # Refresh network information.
-    return session.network.get_network(network.id)
+from sunbeam_migrate.tests.integration.handlers.neutron import utils as neutron_utils
 
 
 def _check_migrated_network(source_network, destination_network):
@@ -32,17 +25,6 @@ def _check_migrated_network(source_network, destination_network):
         source_attr = getattr(source_network, field)
         dest_attr = getattr(destination_network, field)
         assert source_attr == dest_attr, f"{field} attribute mismatch"
-
-
-def _create_test_subnet(session, network):
-    subnet = session.network.create_subnet(
-        network_id=network.id,
-        ip_version=4,
-        cidr="192.168.10.0/24",
-        name=test_utils.get_test_resource_name(),
-    )
-    # Refresh subnet information.
-    return session.network.get_subnet(subnet.id)
 
 
 def _check_migrated_subnet(source_subnet, destination_subnet):
@@ -78,7 +60,7 @@ def test_migrate_network_and_cleanup(
     test_source_session,
     test_destination_session,
 ):
-    network = _create_test_network(test_source_session)
+    network = neutron_utils.create_test_network(test_source_session)
     request.addfinalizer(lambda: test_source_session.network.delete_network(network.id))
 
     test_utils.call_migrate(
@@ -106,10 +88,10 @@ def test_migrate_network_with_members(
     test_source_session,
     test_destination_session,
 ):
-    network = _create_test_network(test_source_session)
+    network = neutron_utils.create_test_network(test_source_session)
     request.addfinalizer(lambda: test_source_session.network.delete_network(network.id))
 
-    subnet = _create_test_subnet(test_source_session, network)
+    subnet = neutron_utils.create_test_subnet(test_source_session, network)
     request.addfinalizer(lambda: test_source_session.network.delete_subnet(subnet.id))
 
     test_utils.call_migrate(
@@ -143,10 +125,10 @@ def test_migrate_subnet_and_cleanup(
     test_source_session,
     test_destination_session,
 ):
-    network = _create_test_network(test_source_session)
+    network = neutron_utils.create_test_network(test_source_session)
     request.addfinalizer(lambda: test_source_session.network.delete_network(network.id))
 
-    subnet = _create_test_subnet(test_source_session, network)
+    subnet = neutron_utils.create_test_subnet(test_source_session, network)
     request.addfinalizer(lambda: test_source_session.network.delete_subnet(subnet.id))
 
     test_utils.call_migrate(

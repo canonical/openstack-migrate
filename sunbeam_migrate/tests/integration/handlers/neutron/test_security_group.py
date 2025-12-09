@@ -1,16 +1,7 @@
 # SPDX-FileCopyrightText: 2025 - Canonical Ltd
 # SPDX-License-Identifier: Apache-2.0
 
-from sunbeam_migrate.tests.integration import utils as test_utils
-
-
-def _create_test_security_group(session):
-    sg = session.network.create_security_group(
-        name=test_utils.get_test_resource_name(),
-        description="test security group",
-    )
-    # Refresh SG information.
-    return session.network.get_security_group(sg.id)
+from sunbeam_migrate.tests.integration.handlers.neutron import utils as neutron_utils
 
 
 def _check_migrated_security_group(source_sg, destination_sg):
@@ -23,19 +14,6 @@ def _check_migrated_security_group(source_sg, destination_sg):
         source_attr = getattr(source_sg, field)
         dest_attr = getattr(destination_sg, field)
         assert source_attr == dest_attr, f"{field} attribute mismatch"
-
-
-def _create_test_security_group_rule(session, security_group):
-    rule = session.network.create_security_group_rule(
-        security_group_id=security_group.id,
-        direction="ingress",
-        ethertype="IPv4",
-        protocol="tcp",
-        port_range_min=8080,
-        port_range_max=8080,
-    )
-    # Refresh rule information.
-    return session.network.get_security_group_rule(rule.id)
 
 
 def _check_migrated_security_group_rule(source_rule, dest_rule):
@@ -61,7 +39,7 @@ def test_migrate_security_group(
     test_source_session,
     test_destination_session,
 ):
-    sg = _create_test_security_group(test_source_session)
+    sg = neutron_utils.create_test_security_group(test_source_session)
     request.addfinalizer(
         lambda: test_source_session.network.delete_security_group(sg.id)
     )
@@ -95,7 +73,7 @@ def test_migrate_security_group_and_cleanup(
     test_source_session,
     test_destination_session,
 ):
-    sg = _create_test_security_group(test_source_session)
+    sg = neutron_utils.create_test_security_group(test_source_session)
     request.addfinalizer(
         lambda: test_source_session.network.delete_security_group(sg.id)
     )
@@ -125,12 +103,12 @@ def test_migrate_security_group_with_members(
     test_source_session,
     test_destination_session,
 ):
-    sg = _create_test_security_group(test_source_session)
+    sg = neutron_utils.create_test_security_group(test_source_session)
     request.addfinalizer(
         lambda: test_source_session.network.delete_security_group(sg.id)
     )
 
-    rule = _create_test_security_group_rule(test_source_session, sg)
+    rule = neutron_utils.create_test_security_group_rule(test_source_session, sg)
     request.addfinalizer(
         lambda: test_source_session.network.delete_security_group_rule(rule.id)
     )
@@ -176,12 +154,12 @@ def test_migrate_security_group_rule_and_cleanup(
     test_source_session,
     test_destination_session,
 ):
-    sg = _create_test_security_group(test_source_session)
+    sg = neutron_utils.create_test_security_group(test_source_session)
     request.addfinalizer(
         lambda: test_source_session.network.delete_security_group(sg.id)
     )
 
-    rule = _create_test_security_group_rule(test_source_session, sg)
+    rule = neutron_utils.create_test_security_group_rule(test_source_session, sg)
     request.addfinalizer(
         lambda: test_source_session.network.delete_security_group_rule(rule.id)
     )

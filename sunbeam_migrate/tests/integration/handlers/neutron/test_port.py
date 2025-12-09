@@ -4,29 +4,7 @@
 from openstack import exceptions as openstack_exc
 
 from sunbeam_migrate.tests.integration import utils as test_utils
-
-
-def _create_test_network(session):
-    network = session.network.create_network(name=test_utils.get_test_resource_name())
-    return session.network.get_network(network.id)
-
-
-def _create_test_subnet(session, network, cidr="192.168.10.0/24"):
-    subnet = session.network.create_subnet(
-        network_id=network.id,
-        ip_version=4,
-        cidr=cidr,
-        name=test_utils.get_test_resource_name(),
-    )
-    return session.network.get_subnet(subnet.id)
-
-
-def _create_test_security_group(session):
-    sg = session.network.create_security_group(
-        name=test_utils.get_test_resource_name(),
-        description="test security group",
-    )
-    return session.network.get_security_group(sg.id)
+from sunbeam_migrate.tests.integration.handlers.neutron import utils as neutron_utils
 
 
 def _create_test_port(session, network, subnet=None, security_group=None, fixed_ip=None):
@@ -100,17 +78,19 @@ def test_migrate_port_with_dependencies(
 ):
     """Test port migration with all associated resources and fixed IP."""
     # Create network, subnet, and security group on source
-    network = _create_test_network(test_source_session)
+    network = neutron_utils.create_test_network(test_source_session)
     request.addfinalizer(
         lambda: test_source_session.network.delete_network(network.id)
     )
 
-    subnet = _create_test_subnet(test_source_session, network, cidr="10.0.0.0/24")
+    subnet = neutron_utils.create_test_subnet(
+        test_source_session, network, cidr="10.0.0.0/24"
+    )
     request.addfinalizer(
         lambda: test_source_session.network.delete_subnet(subnet.id)
     )
 
-    security_group = _create_test_security_group(test_source_session)
+    security_group = neutron_utils.create_test_security_group(test_source_session)
     request.addfinalizer(
         lambda: test_source_session.network.delete_security_group(security_group.id)
     )

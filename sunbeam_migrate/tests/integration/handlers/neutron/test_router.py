@@ -2,26 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from sunbeam_migrate.tests.integration import utils as test_utils
-
-
-def _create_test_network(session, is_router_external=False):
-    network = session.network.create_network(
-        name=test_utils.get_test_resource_name(),
-        is_router_external=is_router_external,
-    )
-    # Refresh network information.
-    return session.network.get_network(network.id)
-
-
-def _create_test_subnet(session, network, cidr="192.168.10.0/24"):
-    subnet = session.network.create_subnet(
-        network_id=network.id,
-        ip_version=4,
-        cidr=cidr,
-        name=test_utils.get_test_resource_name(),
-    )
-    # Refresh subnet information.
-    return session.network.get_subnet(subnet.id)
+from sunbeam_migrate.tests.integration.handlers.neutron import utils as neutron_utils
 
 
 def _create_test_router(session, external_network=None, external_subnet=None):
@@ -95,14 +76,14 @@ def test_migrate_router_with_dependencies_and_members(
     test_destination_session,
 ):
     # Create external network and subnet for gateway
-    external_network = _create_test_network(
+    external_network = neutron_utils.create_test_network(
         test_source_session, is_router_external=True
     )
     request.addfinalizer(
         lambda: test_source_session.network.delete_network(external_network.id)
     )
 
-    external_subnet = _create_test_subnet(
+    external_subnet = neutron_utils.create_test_subnet(
         test_source_session, external_network, cidr="10.0.0.0/24"
     )
     request.addfinalizer(
@@ -110,12 +91,12 @@ def test_migrate_router_with_dependencies_and_members(
     )
 
     # Create internal network and subnet
-    internal_network = _create_test_network(test_source_session)
+    internal_network = neutron_utils.create_test_network(test_source_session)
     request.addfinalizer(
         lambda: test_source_session.network.delete_network(internal_network.id)
     )
 
-    internal_subnet = _create_test_subnet(
+    internal_subnet = neutron_utils.create_test_subnet(
         test_source_session, internal_network, cidr="192.168.20.0/24"
     )
     request.addfinalizer(
