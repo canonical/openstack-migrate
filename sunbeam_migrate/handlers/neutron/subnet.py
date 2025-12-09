@@ -87,7 +87,7 @@ class SubnetHandler(base.BaseMigrationHandler):
             "prefix_length",
             "segment_id",
             "service_types",
-            "subnet_pool_id",
+            # "subnet_pool_id",
             "use_default_subnet_pool",
         ]
         kwargs = {}
@@ -98,6 +98,7 @@ class SubnetHandler(base.BaseMigrationHandler):
 
         kwargs["network_id"] = destination_network_id
 
+        # TODO: migrate subnet pools
         destination_subnet = self._destination_session.network.create_subnet(**kwargs)
         return destination_subnet.id
 

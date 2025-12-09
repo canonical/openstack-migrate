@@ -25,3 +25,7 @@ class NotFound(SunbeamMigrateException):
 
 class MultipleResourcesFound(SunbeamMigrateException):
     msg_fmt = "Multiple resources found."
+
+
+class NotSupported(SunbeamMigrateException):
+    msg_fmt = "The requested operation is unsupported."

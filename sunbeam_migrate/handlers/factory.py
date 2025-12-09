@@ -30,6 +30,7 @@ MIGRATION_HANDLERS = {
     "router": "sunbeam_migrate.handlers.neutron.router.RouterHandler",
     "network": "sunbeam_migrate.handlers.neutron.network.NetworkHandler",
     "subnet": "sunbeam_migrate.handlers.neutron.subnet.SubnetHandler",
+    "port": "sunbeam_migrate.handlers.neutron.port.PortHandler",
     "security-group": "sunbeam_migrate.handlers.neutron.security_group.SecurityGroupHandler",
     "security-group-rule": "sunbeam_migrate.handlers.neutron.security_group_rule.SecurityGroupRuleHandler",
 }
