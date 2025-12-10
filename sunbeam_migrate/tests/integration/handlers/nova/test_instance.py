@@ -90,15 +90,33 @@ def _create_test_instance_from_volume(
     additional_volume_id=None,
 ):
     """Create a test instance booted from volume."""
+    block_device_mapping = [
+        {
+            "boot_index": 0,
+            "uuid": boot_volume_id,
+            "source_type": "volume",
+            "destination_type": "volume",
+            "delete_on_termination": False,
+        }
+    ]
+
+    if additional_volume_id:
+        block_device_mapping.append(
+            {
+                "boot_index": 1,
+                "uuid": additional_volume_id,
+                "source_type": "volume",
+                "destination_type": "volume",
+                "delete_on_termination": False,
+            }
+        )
+
     instance_kwargs = {
         "name": test_utils.get_test_resource_name(),
         "flavor_id": flavor_id,
-        "boot_volume": boot_volume_id,
+        "block_device_mapping_v2": block_device_mapping,
         "networks": [{"uuid": network.id}],
     }
-
-    if additional_volume_id:
-        instance_kwargs["volumes"] = [additional_volume_id]
 
     LOG.info("Creating instance from volume: %s", instance_kwargs)
     instance = session.compute.create_server(**instance_kwargs)

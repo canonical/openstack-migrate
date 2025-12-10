@@ -66,28 +66,17 @@ class InstanceHandler(base.BaseMigrationHandler):
         # Keypair
         if source_instance.key_name:
             keypair = self._source_session.compute.find_keypair(
-                source_instance.key_name, ignore_missing=True
+                source_instance.key_name, ignore_missing=False
             )
-            if keypair:
-                associated_resources.append(("keypair", keypair.id))
+            associated_resources.append(("keypair", keypair.id))
 
         # Security groups
-        security_groups = getattr(source_instance, "security_groups", None) or []
-        for sg in security_groups:
-            sg_id = sg.get("id") if isinstance(sg, dict) else getattr(sg, "id", None)
-            if sg_id:
-                associated_resources.append(("security-group", sg_id))
+        for sg in source_instance.security_groups or []:
+            associated_resources.append(("security-group", sg["id"]))
 
         # Volumes attached to the instance
-        volumes_attached = getattr(source_instance, "volumes_attached", None) or []
-        for volume in volumes_attached:
-            volume_id = (
-                volume.get("id")
-                if isinstance(volume, dict)
-                else getattr(volume, "id", None)
-            )
-            if volume_id:
-                associated_resources.append(("volume", volume_id))
+        for volume in source_instance.volumes_attached or []:
+            associated_resources.append(("volume", volume["id"]))
 
         # Ports attached to the instance
         #
@@ -120,6 +109,35 @@ class InstanceHandler(base.BaseMigrationHandler):
         LOG.info("Finished uploading instance to Glance.")
         return self._source_session.get_image(glance_image.id)
 
+    def _get_block_device_mapping(
+        self,
+        source_instance,
+        migrated_associated_resources: list[tuple[str, str, str]],
+    ) -> list[dict[str, Any]]:
+        block_device_mapping = []
+        for volume_attached in source_instance.volumes_attached or []:
+            # Use the attachment API to retrieve more details.
+            volume_id = volume_attached["id"]
+            attachment = self._source_session.compute.get_volume_attachment(
+                source_instance, volume_attached["id"]
+            )
+
+            dest_volume_id = self._get_associated_resource_destination_id(
+                "volume", volume_id, migrated_associated_resources
+            )
+
+            mapping = {
+                "delete_on_termination": attachment.delete_on_termination,
+                "uuid": dest_volume_id,
+                "source_type": "volume",
+                "tag": attachment.tag,
+            }
+            if attachment.device in ("/dev/sda", "/dev/vda"):
+                mapping["boot_index"] = 0
+
+            block_device_mapping.append(mapping)
+        return block_device_mapping
+
     def perform_individual_migration(
         self,
         resource_id: str,
@@ -143,7 +161,6 @@ class InstanceHandler(base.BaseMigrationHandler):
         )
 
         destination_image_id: str | None = None
-        boot_volume_id: str | None = None
         source_image: Any = None
 
         # Handle image-booted instances: upload to Glance and migrate image
@@ -165,38 +182,12 @@ class InstanceHandler(base.BaseMigrationHandler):
                     )
                 raise
 
-        # Handle volume-booted instances
-        if not destination_image_id and source_instance.volumes_attached:
-            # Get the boot volume (typically the first one or one with boot_index=0)
-            boot_volume = None
-            for volume in source_instance.volumes_attached:
-                volume_dict = volume if isinstance(volume, dict) else volume.to_dict()
-                boot_index = volume_dict.get("boot_index", 0)
-                if boot_index == 0:
-                    boot_volume = volume_dict
-                    break
-            if not boot_volume and source_instance.volumes_attached:
-                # Fallback to first volume if no boot_index found
-                boot_volume = (
-                    source_instance.volumes_attached[0]
-                    if isinstance(source_instance.volumes_attached[0], dict)
-                    else source_instance.volumes_attached[0].to_dict()
-                )
-
-            if boot_volume:
-                volume_id = boot_volume.get("id")
-                if volume_id:
-                    boot_volume_id = self._get_associated_resource_destination_id(
-                        "volume", volume_id, migrated_associated_resources
-                    )
-
         try:
             # Build instance creation kwargs
             instance_kwargs = self._build_instance_kwargs(
                 source_instance,
                 source_flavor.id,
                 destination_image_id,
-                boot_volume_id,
                 migrated_associated_resources,
             )
 
@@ -238,7 +229,6 @@ class InstanceHandler(base.BaseMigrationHandler):
         source_instance: Any,
         source_flavor_id: str,
         destination_image_id: str | None,
-        boot_volume_id: str | None,
         migrated_associated_resources: list[tuple[str, str, str]],
     ) -> dict[str, Any]:
         """Build keyword arguments for creating an instance."""
@@ -292,31 +282,14 @@ class InstanceHandler(base.BaseMigrationHandler):
         if destination_networks:
             kwargs["networks"] = destination_networks
 
-        # Boot source: image or volume
         if destination_image_id:
             kwargs["image_id"] = destination_image_id
-        elif boot_volume_id:
-            kwargs["boot_volume"] = boot_volume_id
-        else:
-            raise exception.InvalidInput(
-                "Instance must have either an image or boot volume"
-            )
 
-        # Additional volumes (non-boot)
-        volumes_attached = getattr(source_instance, "volumes_attached", None) or []
-        additional_volumes = []
-        for volume in volumes_attached:
-            volume_dict = volume if isinstance(volume, dict) else volume.to_dict()
-            boot_index = volume_dict.get("boot_index", 0)
-            if boot_index != 0:  # Not the boot volume
-                volume_id = volume_dict.get("id")
-                if volume_id:
-                    dest_volume_id = self._get_associated_resource_destination_id(
-                        "volume", volume_id, migrated_associated_resources
-                    )
-                    additional_volumes.append(dest_volume_id)
-        if additional_volumes:
-            kwargs["volumes"] = additional_volumes
+        block_device_mapping = self._get_block_device_mapping(
+            source_instance, migrated_associated_resources
+        )
+        if block_device_mapping:
+            kwargs["block_device_mapping_v2"] = block_device_mapping
 
         # Optional fields
         optional_fields = [
