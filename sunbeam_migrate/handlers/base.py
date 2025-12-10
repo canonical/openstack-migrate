@@ -136,6 +136,7 @@ class BaseMigrationHandler(abc.ABC):
         os.environ["OS_CLIENT_CONFIG_FILE"] = str(CONF.cloud_config_file)
         return openstack.connect(
             cloud=cloud_name,
+            compute_api_version=constants.NOVA_MICROVERSION,
             share_api_version=constants.MANILA_MICROVERSION,
         )
 

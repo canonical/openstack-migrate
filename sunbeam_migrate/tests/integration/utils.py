@@ -29,6 +29,7 @@ def get_openstack_session(cloud_config_path: Path, cloud_name: str):
         )
         session = openstack.connect(
             cloud=cloud_name,
+            compute_api_version=constants.NOVA_MICROVERSION,
             share_api_version=constants.MANILA_MICROVERSION,
         )
     finally:
