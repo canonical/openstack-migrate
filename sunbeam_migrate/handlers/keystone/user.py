@@ -33,28 +33,32 @@ class UserHandler(base.BaseMigrationHandler):
         """
         return ["domain", "project", "role"]
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
-        """Get a list of associated resources.
-
-        Each entry will be a tuple containing the resource type and
-        the resource id.
-        """
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
+        """Get a list of associated resources."""
         associated_resources = []
 
         source_user = self._source_session.identity.get_user(resource_id)
         if not source_user:
             raise exception.NotFound(f"User not found: {resource_id}")
 
-        associated_resources.append(("domain", source_user.domain_id))
+        associated_resources.append(
+            base.Resource(resource_type="domain", source_id=source_user.domain_id)
+        )
 
         # Add default project if present
         if source_user.default_project_id:
-            associated_resources.append(("project", source_user.default_project_id))
+            associated_resources.append(
+                base.Resource(
+                    resource_type="project", source_id=source_user.default_project_id
+                )
+            )
 
         for assignment in self._source_session.identity.role_assignments(
             user_id=source_user.id,
         ):
-            associated_resources.append(("role", assignment.role["id"]))
+            associated_resources.append(
+                base.Resource(resource_type="role", source_id=assignment.role["id"])
+            )
 
         return associated_resources
 

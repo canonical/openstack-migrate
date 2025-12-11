@@ -77,17 +77,15 @@ class VolumeHandler(base.BaseMigrationHandler):
         )
         return volume_type.id
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
-        """Get a list of associated resources.
-
-        Each entry will be a tuple containing the resource type and
-        the resource id.
-        """
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
+        """Get a list of associated resources."""
         associated_resources = []
 
         if CONF.preserve_volume_type:
             volume_type_id = self._get_source_volume_type_id(volume_id=resource_id)
-            associated_resources.append(("volume-type", volume_type_id))
+            associated_resources.append(
+                base.Resource(resource_type="volume-type", source_id=volume_type_id)
+            )
         else:
             LOG.info(
                 "'preserve_volume_type' disabled, the default volume type will be used."

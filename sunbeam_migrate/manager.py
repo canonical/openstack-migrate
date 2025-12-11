@@ -271,7 +271,7 @@ class SunbeamMigrationManager:
         self,
         resource_type: str,
         resource_id: str,
-    ) -> dict[str, list[base.Resource]]:
+    ) -> dict[str, typing.Sequence[base.Resource]]:
         handler = self._get_migration_handler(resource_type)
         associated_resources = handler.get_associated_resources(resource_id)
 

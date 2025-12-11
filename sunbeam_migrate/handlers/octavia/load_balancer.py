@@ -31,7 +31,7 @@ class LoadBalancerHandler(base.BaseMigrationHandler):
         """
         return ["network", "subnet"]
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the source resources this loadbalancer depends on."""
         source_load_balancer = self._source_session.load_balancer.get_load_balancer(
             resource_id
@@ -39,13 +39,19 @@ class LoadBalancerHandler(base.BaseMigrationHandler):
         if not source_load_balancer:
             raise exception.NotFound(f"Load balancer not found: {resource_id}")
 
-        associated_resources: list[tuple[str, str]] = []
+        associated_resources: list[base.Resource] = []
 
         if source_load_balancer.vip_subnet_id:
-            associated_resources.append(("subnet", source_load_balancer.vip_subnet_id))
+            associated_resources.append(
+                base.Resource(
+                    resource_type="subnet",
+                    source_id=source_load_balancer.vip_subnet_id)
+            )
         if source_load_balancer.vip_network_id:
             associated_resources.append(
-                ("network", source_load_balancer.vip_network_id)
+                base.Resource(
+                    resource_type="network", source_id=source_load_balancer.vip_network_id
+                )
             )
 
         # Collect member subnets from any default pools attached to listeners
@@ -63,8 +69,9 @@ class LoadBalancerHandler(base.BaseMigrationHandler):
             for member in self._source_session.load_balancer.members(pool.id):
                 member_subnet_id = getattr(member, "subnet_id", None)
                 if member_subnet_id:
-                    if ("subnet", member_subnet_id) not in associated_resources:
-                        associated_resources.append(("subnet", member_subnet_id))
+                    associated_resources.append(
+                        base.Resource(resource_type="subnet", source_id=member_subnet_id)
+                    )
 
         return associated_resources
 

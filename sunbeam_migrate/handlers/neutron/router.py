@@ -30,13 +30,13 @@ class RouterHandler(base.BaseMigrationHandler):
         """
         return ["network", "subnet"]
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the source resources this router depends on."""
         source_router = self._source_session.network.get_router(resource_id)
         if not source_router:
             raise exception.NotFound(f"Router not found: {resource_id}")
 
-        associated_resources: list[tuple[str, str]] = []
+        associated_resources = []
 
         external_gateway_info = (
             getattr(source_router, "external_gateway_info", None) or {}
@@ -46,7 +46,9 @@ class RouterHandler(base.BaseMigrationHandler):
 
         network_id = external_gateway_info.get("network_id")
         if network_id:
-            associated_resources.append(("network", network_id))
+            associated_resources.append(
+                base.Resource(resource_type="network", source_id=network_id)
+            )
 
             external_fixed_ips = external_gateway_info.get("external_fixed_ips") or []
             for fixed_ip in external_fixed_ips:
@@ -54,7 +56,9 @@ class RouterHandler(base.BaseMigrationHandler):
                     continue
                 subnet_id = fixed_ip.get("subnet_id")
                 if subnet_id:
-                    associated_resources.append(("subnet", subnet_id))
+                    associated_resources.append(
+                        base.Resource(resource_type="subnet", source_id=subnet_id)
+                    )
 
         return associated_resources
 

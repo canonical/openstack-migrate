@@ -34,7 +34,7 @@ class InstanceHandler(base.BaseMigrationHandler):
             "port",
         ]
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the source resources this instance depends on."""
         source_instance = self._source_session.compute.get_server(resource_id)
         if not source_instance:
@@ -52,20 +52,26 @@ class InstanceHandler(base.BaseMigrationHandler):
         # Security groups will also have to be passed to the instance creation request
         # if we choose to no longer create ports manually.
         for port in self._source_session.network.ports(device_id=source_instance.id):
-            associated_resources.append(("port", port.id))
+            associated_resources.append(
+                base.Resource(resource_type="port", source_id=port.id)
+            )
 
         # Flavor
         source_flavor = self._source_session.compute.find_flavor(
             source_instance.flavor.id
         )
-        associated_resources.append(("flavor", source_flavor.id))
+        associated_resources.append(
+            base.Resource(resource_type="flavor", source_id=source_flavor.id)
+        )
 
         # Keypair
         if source_instance.key_name:
             keypair = self._source_session.compute.find_keypair(
                 source_instance.key_name, ignore_missing=False
             )
-            associated_resources.append(("keypair", keypair.id))
+            associated_resources.append(
+                base.Resource(resource_type="keypair", source_id=keypair.id)
+            )
 
         # Image
         #
@@ -75,7 +81,7 @@ class InstanceHandler(base.BaseMigrationHandler):
         # "preserve_root_disk", allowing the original image to be used instead.
         #
         # if source_instance.image and source_instance.image.get("id"):
-        #     associated_resources.append(("image", source_instance.image["id"]))
+        #     associated_resources.append(base.Resource(resource_type="image", source_id=source_instance.image["id"]))
 
         # Volumes attached to the instance.
         #
@@ -83,7 +89,9 @@ class InstanceHandler(base.BaseMigrationHandler):
         # data. Cinder must be configured with `enable_force_upload = True` in order
         # to upload attached volumes.
         for volume in source_instance.attached_volumes or []:
-            associated_resources.append(("volume", volume["id"]))
+            associated_resources.append(
+                base.Resource(resource_type="volume", source_id=volume["id"])
+            )
 
         return associated_resources
 

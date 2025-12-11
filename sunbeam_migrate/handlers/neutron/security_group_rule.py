@@ -31,14 +31,22 @@ class SecurityGroupRuleHandler(base.BaseMigrationHandler):
         """Security group rules depend on their security group."""
         return ["security-group"]
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the security groups referenced by this rule."""
         source_rule = self._source_session.network.get_security_group_rule(resource_id)
         if not source_rule:
             raise exception.NotFound(f"Security Group Rule not found: {resource_id}")
-        resources = [("security-group", source_rule.security_group_id)]
+        resources = [
+            base.Resource(
+                resource_type="security-group", source_id=source_rule.security_group_id
+            )
+        ]
         if source_rule.remote_group_id:
-            resources.append(("security-group", source_rule.remote_group_id))
+            resources.append(
+                base.Resource(
+                    resource_type="security-group", source_id=source_rule.remote_group_id
+                )
+            )
         return resources
 
     def get_member_resource_types(self) -> list[str]:

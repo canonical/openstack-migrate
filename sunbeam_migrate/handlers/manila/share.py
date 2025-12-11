@@ -33,12 +33,8 @@ class ShareHandler(base.BaseMigrationHandler):
         """
         return ["share-type"]
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
-        """Get a list of associated resources.
-
-        Each entry will be a tuple containing the resource type and
-        the resource id.
-        """
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
+        """Get a list of associated resources."""
         associated_resources = []
 
         source_share = self._source_session.shared_file_system.get_share(resource_id)
@@ -46,7 +42,9 @@ class ShareHandler(base.BaseMigrationHandler):
             raise exception.NotFound(f"Share not found: {resource_id}")
 
         if source_share.share_type:
-            associated_resources.append(("share-type", source_share.share_type))
+            associated_resources.append(
+                base.Resource(resource_type="share-type", source_id=source_share.share_type)
+            )
 
         return associated_resources
 

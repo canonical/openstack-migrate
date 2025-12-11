@@ -32,19 +32,17 @@ class ProjectHandler(base.BaseMigrationHandler):
         """
         return ["domain"]
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
-        """Get a list of associated resources.
-
-        Each entry will be a tuple containing the resource type and
-        the resource id.
-        """
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
+        """Get a list of associated resources."""
         associated_resources = []
 
         source_project = self._source_session.identity.get_project(resource_id)
         if not source_project:
             raise exception.NotFound(f"Project not found: {resource_id}")
 
-        associated_resources.append(("domain", source_project.domain_id))
+        associated_resources.append(
+            base.Resource(resource_type="domain", source_id=source_project.domain_id)
+        )
         return associated_resources
 
     def get_member_resource_types(self) -> list[str]:

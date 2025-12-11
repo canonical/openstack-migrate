@@ -28,7 +28,7 @@ class SecurityGroupHandler(base.BaseMigrationHandler):
         """
         return []
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Security groups have no prerequisite resources."""
         return []
 

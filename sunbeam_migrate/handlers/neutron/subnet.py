@@ -28,15 +28,16 @@ class SubnetHandler(base.BaseMigrationHandler):
         """
         return ["network"]
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the source resources this subnet depends on."""
         source_subnet = self._source_session.network.get_subnet(resource_id)
         if not source_subnet:
             raise exception.NotFound(f"Subnet not found: {resource_id}")
 
-        associated_resources = []
-        for network_ref in [source_subnet.network_id]:
-            associated_resources.append(("network", network_ref))
+        associated_resources: list[base.Resource] = []
+        associated_resources.append(
+            base.Resource(resource_type="network", source_id=source_subnet.network_id)
+        )
 
         return associated_resources
 
@@ -50,14 +51,13 @@ class SubnetHandler(base.BaseMigrationHandler):
     def perform_individual_migration(
         self,
         resource_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> str:
         """Migrate the specified resource.
 
         :param resource_id: the resource to be migrated
-        :param migrated_associated_resources: a list of tuples describing
-            associated resources that have already been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_associated_resources: a list of MigratedResource
+               objects describing migrated dependencies.
 
         Return the resulting resource id.
         """
