@@ -34,7 +34,7 @@ class InstanceHandler(base.BaseMigrationHandler):
             "port",
         ]
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the source resources this instance depends on."""
         source_instance = self._source_session.compute.get_server(resource_id)
         if not source_instance:
@@ -52,20 +52,30 @@ class InstanceHandler(base.BaseMigrationHandler):
         # Security groups will also have to be passed to the instance creation request
         # if we choose to no longer create ports manually.
         for port in self._source_session.network.ports(device_id=source_instance.id):
-            associated_resources.append(("port", port.id))
+            associated_resources.append(
+                base.Resource(
+                    resource_type="port",
+                    source_id=port.id,
+                    should_cleanup=True,
+                )
+            )
 
         # Flavor
         source_flavor = self._source_session.compute.find_flavor(
             source_instance.flavor.id
         )
-        associated_resources.append(("flavor", source_flavor.id))
+        associated_resources.append(
+            base.Resource(resource_type="flavor", source_id=source_flavor.id)
+        )
 
         # Keypair
         if source_instance.key_name:
             keypair = self._source_session.compute.find_keypair(
                 source_instance.key_name, ignore_missing=False
             )
-            associated_resources.append(("keypair", keypair.id))
+            associated_resources.append(
+                base.Resource(resource_type="keypair", source_id=keypair.id)
+            )
 
         # Image
         #
@@ -75,7 +85,10 @@ class InstanceHandler(base.BaseMigrationHandler):
         # "preserve_root_disk", allowing the original image to be used instead.
         #
         # if source_instance.image and source_instance.image.get("id"):
-        #     associated_resources.append(("image", source_instance.image["id"]))
+        #     associated_resources.append(
+        #         base.Resource(
+        #             resource_type="image",
+        #             source_id=source_instance.image["id"]))
 
         # Volumes attached to the instance.
         #
@@ -83,7 +96,14 @@ class InstanceHandler(base.BaseMigrationHandler):
         # data. Cinder must be configured with `enable_force_upload = True` in order
         # to upload attached volumes.
         for volume in source_instance.attached_volumes or []:
-            associated_resources.append(("volume", volume["id"]))
+            # TODO: set should_cleanup=False if the volume has multiple attachments.
+            associated_resources.append(
+                base.Resource(
+                    resource_type="volume",
+                    source_id=volume["id"],
+                    should_cleanup=True,
+                )
+            )
 
         return associated_resources
 
@@ -110,7 +130,7 @@ class InstanceHandler(base.BaseMigrationHandler):
     def _get_block_device_mapping(
         self,
         source_instance,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> list[dict[str, Any]]:
         block_device_mapping = []
         for volume_attached in source_instance.attached_volumes or []:
@@ -141,14 +161,13 @@ class InstanceHandler(base.BaseMigrationHandler):
     def perform_individual_migration(
         self,
         resource_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> str:
         """Migrate the specified resource.
 
         :param resource_id: the resource to be migrated
-        :param migrated_associated_resources: a list of tuples describing
-            associated resources that have already been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_associated_resources: a list of MigratedResource
+            objects describing migrated dependencies.
 
         Return the resulting resource id.
         """
@@ -229,7 +248,7 @@ class InstanceHandler(base.BaseMigrationHandler):
         source_instance: Any,
         source_flavor_id: str,
         destination_image_id: str | None,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> dict[str, Any]:
         """Build keyword arguments for creating an instance."""
         kwargs: dict[str, Any] = {

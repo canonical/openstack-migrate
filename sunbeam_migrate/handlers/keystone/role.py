@@ -30,12 +30,8 @@ class RoleHandler(base.BaseMigrationHandler):
         """
         return ["domain"]
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
-        """Get a list of associated resources.
-
-        Each entry will be a tuple containing the resource type and
-        the resource id.
-        """
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
+        """Get a list of associated resources."""
         associated_resources = []
 
         source_role = self._source_session.identity.get_role(resource_id)
@@ -44,21 +40,22 @@ class RoleHandler(base.BaseMigrationHandler):
 
         # Roles can be domain-specific or global (domain_id can be None)
         if source_role.domain_id:
-            associated_resources.append(("domain", source_role.domain_id))
+            associated_resources.append(
+                base.Resource(resource_type="domain", source_id=source_role.domain_id)
+            )
 
         return associated_resources
 
     def perform_individual_migration(
         self,
         resource_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> str:
         """Migrate the specified resource.
 
         :param resource_id: the resource to be migrated
-        :param migrated_associated_resources: a list of tuples describing
-            associated resources that have already been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_associated_resources: a list of MigratedResource
+            objects describing migrated dependencies.
 
         Return the resulting resource id.
         """
@@ -93,7 +90,7 @@ class RoleHandler(base.BaseMigrationHandler):
     def _build_role_kwargs(
         self,
         source_role,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> dict:
         """Build kwargs for creating a destination role."""
         kwargs: dict = {}

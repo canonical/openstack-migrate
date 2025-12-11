@@ -31,7 +31,7 @@ class PortHandler(base.BaseMigrationHandler):
         """
         return ["network", "subnet", "security-group"]
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the source resources this port depends on."""
         source_port = self._source_session.network.get_port(resource_id)
         if not source_port:
@@ -39,14 +39,18 @@ class PortHandler(base.BaseMigrationHandler):
 
         associated_resources = []
         if source_port.network_id:
-            associated_resources.append(("network", source_port.network_id))
+            associated_resources.append(
+                base.Resource(resource_type="network", source_id=source_port.network_id)
+            )
 
         # Add subnets as associated resources from fixed_ips
         fixed_ips = source_port.fixed_ips or []
         for fixed_ip in fixed_ips:
             subnet_id = fixed_ip.get("subnet_id")
             if subnet_id:
-                associated_resources.append(("subnet", subnet_id))
+                associated_resources.append(
+                    base.Resource(resource_type="subnet", source_id=subnet_id)
+                )
 
         # Add security groups as associated resources
         security_group_ids = source_port.security_group_ids or []
@@ -55,21 +59,22 @@ class PortHandler(base.BaseMigrationHandler):
             if source_sg.name == "default":
                 LOG.info("Skipping default security group rule.")
                 continue
-            associated_resources.append(("security-group", sg_id))
+            associated_resources.append(
+                base.Resource(resource_type="security-group", source_id=sg_id)
+            )
 
         return associated_resources
 
     def perform_individual_migration(
         self,
         resource_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> str:
         """Migrate the specified resource.
 
         :param resource_id: the resource to be migrated
-        :param migrated_associated_resources: a list of tuples describing
-            associated resources that have already been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_associated_resources: a list of MigratedResource
+            objects describing migrated dependencies.
 
         Return the resulting resource id.
         """

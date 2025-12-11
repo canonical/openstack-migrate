@@ -5,11 +5,38 @@ import abc
 import os
 
 import openstack
+import pydantic
 from openstack import exceptions as openstack_exc
 
 from sunbeam_migrate import config, constants, exception
 
 CONF = config.get_config()
+
+
+class Resource(pydantic.BaseModel):
+    """Resource class.
+
+    Migration handlers use this class to describe resource dependencies.
+    The migration manager will ensure that the requested resources are
+    migrated before initiating the dependent resource migration.
+    """
+
+    resource_type: str
+    source_id: str
+    # Whether the specified resource should be cleaned up.
+    # Shared resources (e.g. networks, flavor) should not be removed when
+    # one of the dependent resources are migrated (e.g. port, instance).
+    should_cleanup: bool = False
+
+
+class MigratedResource(Resource):
+    """Migrated resource class.
+
+    Migration handlers receive information about migrated dependencies
+    using this class.
+    """
+
+    destination_id: str
 
 
 class BaseMigrationHandler(abc.ABC):
@@ -27,14 +54,13 @@ class BaseMigrationHandler(abc.ABC):
     def perform_individual_migration(
         self,
         resource_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[MigratedResource],
     ) -> str:
         """Migrate the specified resource.
 
         :param resource_id: the resource to be migrated
-        :param migrated_associated_resources: a list of tuples describing
-            associated resources that have already been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_associated_resources: a list of MigratedResource
+               objects describing migrated dependencies.
 
         Return the resulting resource id.
         """
@@ -71,11 +97,8 @@ class BaseMigrationHandler(abc.ABC):
         """
         return []
 
-    def get_member_resources(self, resource_id: str) -> list[tuple[str, str]]:
+    def get_member_resources(self, resource_id: str) -> list[Resource]:
         """Get a list of member resources.
-
-        Each entry will be a tuple containing the resource type and
-        the resource id.
 
         We're using a list instead of a dict so that the handler can control
         the order in which associated resources are migrated.
@@ -94,11 +117,8 @@ class BaseMigrationHandler(abc.ABC):
         """
         return []
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
+    def get_associated_resources(self, resource_id: str) -> list[Resource]:
         """Get a list of associated resources.
-
-        Each entry will be a tuple containing the resource type and
-        the resource id.
 
         We're using a list instead of a dict so that the handler can control
         the order in which dependent resources are migrated.
@@ -115,7 +135,7 @@ class BaseMigrationHandler(abc.ABC):
     def connect_member_resources_to_parent(
         self,
         parent_resource_id: str | None,
-        migrated_member_resources: list[tuple[str, str, str]],
+        migrated_member_resources: list[MigratedResource],
     ):
         """Connect member resources to the parent resource.
 
@@ -123,9 +143,8 @@ class BaseMigrationHandler(abc.ABC):
 
         :param parent_resource_id: The destination ID of the parent resource,
                                    having the same type as that of the handler.
-        :param migrated_member_resources: A list of tuples describing
-            member resources that have been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_member_resources: a list of MigratedResource
+               objects describing migrated member resources.
         """
         pass
 
@@ -199,15 +218,14 @@ class BaseMigrationHandler(abc.ABC):
         self,
         resource_type: str,
         source_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[MigratedResource],
     ) -> str:
-        for (
-            assoc_resource_type,
-            assoc_source_id,
-            assoc_destination_id,
-        ) in migrated_associated_resources:
-            if resource_type == assoc_resource_type and source_id == assoc_source_id:
-                return assoc_destination_id
+        for resource in migrated_associated_resources:
+            if (
+                resource_type == resource.resource_type
+                and source_id == resource.source_id
+            ):
+                return resource.destination_id
         raise exception.NotFound(
             "Couldn't find migrated associated resource: %s %s - %s. "
             "Please migrate it first or rerun the command with '--include-dependencies'"

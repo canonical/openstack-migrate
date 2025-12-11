@@ -33,12 +33,8 @@ class ShareHandler(base.BaseMigrationHandler):
         """
         return ["share-type"]
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
-        """Get a list of associated resources.
-
-        Each entry will be a tuple containing the resource type and
-        the resource id.
-        """
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
+        """Get a list of associated resources."""
         associated_resources = []
 
         source_share = self._source_session.shared_file_system.get_share(resource_id)
@@ -46,21 +42,24 @@ class ShareHandler(base.BaseMigrationHandler):
             raise exception.NotFound(f"Share not found: {resource_id}")
 
         if source_share.share_type:
-            associated_resources.append(("share-type", source_share.share_type))
+            associated_resources.append(
+                base.Resource(
+                    resource_type="share-type", source_id=source_share.share_type
+                )
+            )
 
         return associated_resources
 
     def perform_individual_migration(
         self,
         resource_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> str:
         """Migrate the specified resource.
 
         :param resource_id: the resource to be migrated
-        :param migrated_associated_resources: a list of tuples describing
-            associated resources that have already been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_associated_resources: a list of MigratedResource
+            objects describing migrated dependencies.
 
         Return the resulting resource id.
         """
@@ -100,7 +99,7 @@ class ShareHandler(base.BaseMigrationHandler):
     def _build_share_kwargs(
         self,
         source_share,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> dict:
         """Build kwargs for creating a destination share."""
         kwargs: dict = {}

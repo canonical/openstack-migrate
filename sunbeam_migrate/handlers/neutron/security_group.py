@@ -28,7 +28,7 @@ class SecurityGroupHandler(base.BaseMigrationHandler):
         """
         return []
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Security groups have no prerequisite resources."""
         return []
 
@@ -39,30 +39,31 @@ class SecurityGroupHandler(base.BaseMigrationHandler):
         """
         return ["security-group-rule"]
 
-    def get_member_resources(self, resource_id: str) -> list[tuple[str, str]]:
+    def get_member_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the rules belonging to this security group."""
         source_sg = self._source_session.network.get_security_group(resource_id)
         if not source_sg:
             raise exception.NotFound(f"Security Group not found: {resource_id}")
 
-        member_resources: list[tuple[str, str]] = []
+        member_resources: list[base.Resource] = []
         for rule in self._source_session.network.security_group_rules(
             security_group_id=source_sg.id
         ):
-            member_resources.append(("security-group-rule", rule.id))
+            member_resources.append(
+                base.Resource(resource_type="security-group-rule", source_id=rule.id)
+            )
         return member_resources
 
     def perform_individual_migration(
         self,
         resource_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> str:
         """Migrate the specified resource.
 
         :param resource_id: the resource to be migrated
-        :param migrated_associated_resources: a list of tuples describing
-            associated resources that have already been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_associated_resources: a list of MigratedResource
+            objects describing migrated dependencies.
 
         Return the resulting resource id.
         """

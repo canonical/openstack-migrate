@@ -26,12 +26,8 @@ class SecretContainerHandler(base.BaseMigrationHandler):
         """Get a list of associated resource types."""
         return ["secret"]
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
-        """Get a list of associated resources.
-
-        Each entry will be a tuple containing the resource type and
-        the resource id.
-        """
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
+        """Get a list of associated resources."""
         container_id = barbican_utils.parse_barbican_url(resource_id)
         container = self._source_session.key_manager.get_container(container_id)
         if not (container and container.id):
@@ -39,21 +35,26 @@ class SecretContainerHandler(base.BaseMigrationHandler):
 
         associated_resources = []
         for secret_ref_dict in container.secret_refs:
-            associated_resources.append(("secret", secret_ref_dict["secret_ref"]))
+            associated_resources.append(
+                base.Resource(
+                    resource_type="secret",
+                    source_id=secret_ref_dict["secret_ref"],
+                    should_cleanup=True,
+                )
+            )
 
         return associated_resources
 
     def perform_individual_migration(
         self,
         resource_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> str:
         """Migrate the specified resource.
 
         :param resource_id: the resource to be migrated
-        :param migrated_associated_resources: a list of tuples describing
-            associated resources that have already been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_associated_resources: a list of MigratedResource
+               objects describing migrated dependencies.
 
         Return the resulting resource id.
         """

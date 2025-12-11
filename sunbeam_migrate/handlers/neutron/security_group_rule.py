@@ -31,14 +31,23 @@ class SecurityGroupRuleHandler(base.BaseMigrationHandler):
         """Security group rules depend on their security group."""
         return ["security-group"]
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the security groups referenced by this rule."""
         source_rule = self._source_session.network.get_security_group_rule(resource_id)
         if not source_rule:
             raise exception.NotFound(f"Security Group Rule not found: {resource_id}")
-        resources = [("security-group", source_rule.security_group_id)]
+        resources = [
+            base.Resource(
+                resource_type="security-group", source_id=source_rule.security_group_id
+            )
+        ]
         if source_rule.remote_group_id:
-            resources.append(("security-group", source_rule.remote_group_id))
+            resources.append(
+                base.Resource(
+                    resource_type="security-group",
+                    source_id=source_rule.remote_group_id,
+                )
+            )
         return resources
 
     def get_member_resource_types(self) -> list[str]:
@@ -51,14 +60,13 @@ class SecurityGroupRuleHandler(base.BaseMigrationHandler):
     def perform_individual_migration(
         self,
         resource_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> str:
         """Migrate the specified resource.
 
         :param resource_id: the resource to be migrated
-        :param migrated_associated_resources: a list of tuples describing
-            associated resources that have already been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_associated_resources: a list of MigratedResource
+            objects describing migrated dependencies.
 
         Return the resulting resource id.
         """

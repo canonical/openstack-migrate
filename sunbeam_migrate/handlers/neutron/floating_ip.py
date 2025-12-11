@@ -32,7 +32,7 @@ class FloatingIPHandler(base.BaseMigrationHandler):
         """
         return ["network", "subnet"]
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the network and subnet this floating IP depends on."""
         source_fip = self._source_session.network.get_ip(resource_id)
         if not source_fip:
@@ -41,7 +41,9 @@ class FloatingIPHandler(base.BaseMigrationHandler):
         associated_resources = []
         floating_network_id = source_fip.floating_network_id
         if floating_network_id:
-            associated_resources.append(("network", floating_network_id))
+            associated_resources.append(
+                base.Resource(resource_type="network", source_id=floating_network_id)
+            )
 
         subnet_ids = set()
         if getattr(source_fip, "subnet_id", None):
@@ -80,7 +82,9 @@ class FloatingIPHandler(base.BaseMigrationHandler):
                     )
 
         for subnet_id in sorted(subnet_ids):
-            associated_resources.append(("subnet", subnet_id))
+            associated_resources.append(
+                base.Resource(resource_type="subnet", source_id=subnet_id)
+            )
         return associated_resources
 
     def get_member_resource_types(self) -> list[str]:
@@ -93,14 +97,13 @@ class FloatingIPHandler(base.BaseMigrationHandler):
     def perform_individual_migration(
         self,
         resource_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> str:
         """Migrate the specified floating IP.
 
         :param resource_id: the resource to be migrated
-        :param migrated_associated_resources: a list of tuples describing
-            associated resources that have already been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_associated_resources: a list of MigratedResource
+            objects describing migrated dependencies.
 
         Return the resulting resource id.
         """

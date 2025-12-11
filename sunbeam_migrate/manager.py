@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import typing
 
 from sunbeam_migrate import config, constants, exception
 from sunbeam_migrate.db import api as db_api
@@ -34,14 +35,16 @@ class SunbeamMigrationManager:
         if not resource_id:
             raise exception.InvalidInput("No resource id specified.")
 
-        migration = self._migrate_parent_resource(
+        migration, associated_migrations = self._migrate_parent_resource(
             handler=handler,
             resource_type=resource_type,
             resource_id=resource_id,
-            cleanup_source=cleanup_source,
             include_dependencies=include_dependencies,
             include_members=include_members,
         )
+
+        migration.status = constants.STATUS_PENDING_MEMBERS
+        migration.save()
 
         if include_members:
             migrated_member_resources = self._migrate_member_resources(
@@ -63,6 +66,17 @@ class SunbeamMigrationManager:
                     ex,
                 )
 
+        if cleanup_source:
+            migration.status = constants.STATUS_PENDING_CLEANUP
+            migration.save()
+
+            self.cleanup_migration_source(migration)
+
+            for associated_migration in associated_migrations:
+                self.cleanup_migration_source(associated_migration)
+
+        migration.status = constants.STATUS_COMPLETED
+        migration.save()
         return migration
 
     def _migrate_parent_resource(
@@ -70,11 +84,14 @@ class SunbeamMigrationManager:
         handler,
         resource_type: str,
         resource_id: str,
-        cleanup_source: bool,
         include_dependencies: bool,
         include_members: bool,
-    ) -> models.Migration:
-        """Handle the parent resource migration logic."""
+    ) -> tuple[models.Migration, list[models.Migration]]:
+        """Handle the parent resource migration logic.
+
+        Returns a migration object for the requested resource and a list of
+        associated (dependency) migrations that can be cleaned up.
+        """
         LOG.info("Initiating %s migration, resource id: %s", resource_type, resource_id)
 
         migration = models.Migration(
@@ -87,7 +104,7 @@ class SunbeamMigrationManager:
         )
         migration.save()
 
-        associated_migrations = []
+        cleanup_associated_migrations = []
         try:
             associated_resources = self._get_associated_resources(
                 resource_type, resource_id
@@ -106,50 +123,59 @@ class SunbeamMigrationManager:
                         "or use separate `sunbeam-migrate start` commands: %s"
                         % (resource_type, resource_id, associated_resources)
                     )
-                for assoc_resource_type, assoc_resource_id in associated_resources[
-                    "pending"
-                ]:
+                for associated_resource in associated_resources["pending"]:
                     # Check if this resource is already being migrated
                     existing = db_api.get_migrations(
-                        source_id=assoc_resource_id,
-                        resource_type=assoc_resource_type,
+                        source_id=associated_resource.source_id,
+                        resource_type=associated_resource.resource_type,
                     )
                     if existing:
-                        if existing[0].status == constants.STATUS_COMPLETED:
+                        if existing[0].status in constants.LIST_STATUS_MIGRATED:
                             LOG.info(
                                 "Associated resource %s %s already completed"
-                                " (migration %s), "
+                                " (migration %s, status %s), "
                                 "skipping duplicate migration",
-                                assoc_resource_type,
-                                assoc_resource_id,
+                                associated_resource.resource_type,
+                                associated_resource.source_id,
                                 existing[0].uuid,
+                                existing[0].status,
                             )
-                            # Add it to associated_migrations for cleanup tracking
-                            associated_migrations.append(existing[0])
                             continue
                         elif existing[0].status == constants.STATUS_IN_PROGRESS:
                             LOG.info(
                                 "Associated resource %s %s already in progress"
                                 " (migration %s), "
                                 "will be available once migration completes",
-                                assoc_resource_type,
-                                assoc_resource_id,
+                                associated_resource.resource_type,
+                                associated_resource.source_id,
                                 existing[0].uuid,
                             )
                             continue
 
                     LOG.info(
                         "Migrating associated %s resource: %s",
-                        assoc_resource_type,
-                        assoc_resource_id,
+                        associated_resource.resource_type,
+                        associated_resource.source_id,
                     )
                     associated_migration = self.perform_individual_migration(
-                        assoc_resource_type,
-                        assoc_resource_id,
+                        associated_resource.resource_type,
+                        associated_resource.source_id,
                         include_dependencies=include_dependencies,
                         include_members=include_members,
                     )
-                    associated_migrations.append(associated_migration)
+                    # Indirect dependencies will not be included.
+                    if associated_resource.should_cleanup:
+                        LOG.debug(
+                            "Adding associated resource to the cleanup list: %s",
+                            associated_resource,
+                        )
+                        cleanup_associated_migrations.append(associated_migration)
+                    else:
+                        LOG.debug(
+                            "The associated resource should not be cleaned up: %s, "
+                            "it may be shared with other resources.",
+                            associated_resource,
+                        )
 
                 # Refresh the associated resources and ensure that all of them have
                 # been migrated.
@@ -170,34 +196,20 @@ class SunbeamMigrationManager:
                 migrated_associated_resources=associated_resources["migrated"],
             )
             migration.destination_id = destination_id
-
-            # Mark the parent as successfully migrated *before* handling members
-            # so that they can see it as an already-migrated dependency.
-            migration.status = constants.STATUS_COMPLETED
             migration.save()
-
         except Exception as ex:
             migration.status = constants.STATUS_FAILED
             migration.error_message = "Migration failed, error: %r" % ex
             migration.save()
             raise
 
-        if cleanup_source:
-            self.cleanup_migration_source(migration)
-
-            for associated_migration in associated_migrations:
-                self.cleanup_migration_source(associated_migration)
-
         LOG.info(
             "Successfully migrated %s resource, destination id: %s",
             resource_type,
             destination_id,
         )
-        migration.status = constants.STATUS_COMPLETED
-        migration.destination_id = destination_id
-        migration.save()
 
-        return migration
+        return migration, cleanup_associated_migrations
 
     def _migrate_member_resources(
         self,
@@ -206,34 +218,35 @@ class SunbeamMigrationManager:
         cleanup_source: bool,
         include_dependencies: bool,
         include_members: bool,
-    ) -> list[tuple[str, str, str]]:
+    ) -> list[base.MigratedResource]:
         """Handle member resource migration logic."""
-        migrated_member_resources: list[tuple[str, str, str]] = []
+        migrated_member_resources: list[base.MigratedResource] = []
         member_resources = handler.get_member_resources(resource_id)
-        for member_resource_type, member_resource_id in member_resources:
+        for member_resource in member_resources:
             # Check if this resource is already migrated or being migrated
             # (could have been migrated as an associated resource earlier)
             migrations = db_api.get_migrations(
-                source_id=member_resource_id,
-                resource_type=member_resource_type,
+                source_id=member_resource.source_id,
+                resource_type=member_resource.resource_type,
             )
             if migrations:
                 latest = migrations[0]
-                if latest.status == constants.STATUS_COMPLETED:
+                if latest.status in constants.LIST_STATUS_MIGRATED:
                     LOG.info(
-                        "Member resource %s %s already completed (migration %s), "
+                        "Member resource %s %s already completed (migration %s - %s), "
                         "skipping duplicate migration",
-                        member_resource_type,
-                        member_resource_id,
+                        member_resource.resource_type,
+                        member_resource.source_id,
                         latest.uuid,
+                        latest.status,
                     )
                     continue
                 elif latest.status == constants.STATUS_IN_PROGRESS:
                     LOG.info(
                         "Member resource %s %s already in progress (migration %s), "
                         "skipping duplicate migration",
-                        member_resource_type,
-                        member_resource_id,
+                        member_resource.resource_type,
+                        member_resource.source_id,
                         latest.uuid,
                     )
                     continue
@@ -241,34 +254,25 @@ class SunbeamMigrationManager:
 
             LOG.info(
                 "Migrating member %s resource: %s",
-                member_resource_type,
-                member_resource_id,
+                member_resource.resource_type,
+                member_resource.source_id,
             )
             try:
                 migrated_member = self.perform_individual_migration(
-                    member_resource_type,
-                    member_resource_id,
+                    member_resource.resource_type,
+                    member_resource.source_id,
                     cleanup_source=cleanup_source,
                     include_dependencies=include_dependencies,
                     include_members=include_members,
                 )
-                if (
-                    migrated_member.resource_type
-                    and migrated_member.source_id
-                    and migrated_member.destination_id
-                ):
-                    migrated_member_resources.append(
-                        (
-                            migrated_member.resource_type,
-                            migrated_member.source_id,
-                            migrated_member.destination_id,
-                        )
-                    )
+                migrated_member_resources.append(
+                    self._get_migrated_resource(migrated_member)
+                )
             except Exception as ex:
                 LOG.error(
                     "Failed to migrate member resource %s %s: %r",
-                    member_resource_type,
-                    member_resource_id,
+                    member_resource.resource_type,
+                    member_resource.source_id,
                     ex,
                 )
 
@@ -278,25 +282,24 @@ class SunbeamMigrationManager:
         self,
         resource_type: str,
         resource_id: str,
-    ) -> dict[str, list[tuple]]:
+    ) -> dict[str, typing.Sequence[base.Resource]]:
         handler = self._get_migration_handler(resource_type)
         associated_resources = handler.get_associated_resources(resource_id)
 
-        # TODO: let's define a Pydantic structure instead of this ugly list of tuples.
-        migrated_resources: list[tuple[str, str, str]] = []
-        pending_resources: list[tuple[str, str]] = []
+        migrated_resources: list[base.MigratedResource] = []
+        pending_resources: list[base.Resource] = []
 
-        for resource_type, resource_id in associated_resources:
+        for associated_resource in associated_resources:
             migrations = db_api.get_migrations(
-                source_id=resource_id, resource_type=resource_type
+                source_id=associated_resource.source_id,
+                resource_type=associated_resource.resource_type,
             )
-            if not migrations or migrations[0].status != constants.STATUS_COMPLETED:
-                pending_resources.append((resource_type, resource_id))
-                continue
+            if not migrations:
+                pending_resources.append(associated_resource)
+            elif migrations[0].status not in constants.LIST_STATUS_MIGRATED:
+                pending_resources.append(associated_resource)
             else:
-                migrated_resources.append(
-                    (resource_type, resource_id, migrations[0].destination_id)
-                )
+                migrated_resources.append(self._get_migrated_resource(migrations[0]))
 
         return {
             "migrated": migrated_resources,
@@ -365,3 +368,16 @@ class SunbeamMigrationManager:
             migration.error_message = "Source cleanup failed, error: %r" % ex
             migration.save()
             raise
+
+    def _get_migrated_resource(
+        self, migration: models.Migration
+    ) -> base.MigratedResource:
+        required_fields = ["resource_type", "source_id", "destination_id"]
+        for field in required_fields:
+            if not getattr(migration, field, None):
+                raise exception.InvalidInput(f"Missing migration {field}.")
+        return base.MigratedResource(
+            resource_type=str(migration.resource_type),
+            source_id=str(migration.source_id),
+            destination_id=str(migration.destination_id),
+        )

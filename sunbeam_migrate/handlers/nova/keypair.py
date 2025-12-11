@@ -25,7 +25,7 @@ class KeypairHandler(base.BaseMigrationHandler):
     def perform_individual_migration(
         self,
         resource_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> str:
         """Migrate a single keypair and return the destination id."""
         source_keypair = self._source_session.compute.get_keypair(resource_id)

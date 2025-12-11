@@ -77,17 +77,15 @@ class VolumeHandler(base.BaseMigrationHandler):
         )
         return volume_type.id
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
-        """Get a list of associated resources.
-
-        Each entry will be a tuple containing the resource type and
-        the resource id.
-        """
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
+        """Get a list of associated resources."""
         associated_resources = []
 
         if CONF.preserve_volume_type:
             volume_type_id = self._get_source_volume_type_id(volume_id=resource_id)
-            associated_resources.append(("volume-type", volume_type_id))
+            associated_resources.append(
+                base.Resource(resource_type="volume-type", source_id=volume_type_id)
+            )
         else:
             LOG.info(
                 "'preserve_volume_type' disabled, the default volume type will be used."
@@ -118,14 +116,13 @@ class VolumeHandler(base.BaseMigrationHandler):
     def perform_individual_migration(
         self,
         resource_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> str:
         """Migrate the specified resource.
 
         :param resource_id: the resource to be migrated
-        :param migrated_associated_resources: a list of tuples describing
-            associated resources that have already been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_associated_resources: a list of MigratedResource
+            objects describing migrated dependencies.
 
         Return the resulting resource id.
         """
@@ -180,7 +177,7 @@ class VolumeHandler(base.BaseMigrationHandler):
         self,
         source_volume: Any,
         image_id: str | None,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> dict[str, Any]:
         kwargs: dict[str, Any] = {}
 

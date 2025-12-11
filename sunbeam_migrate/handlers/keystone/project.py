@@ -32,19 +32,17 @@ class ProjectHandler(base.BaseMigrationHandler):
         """
         return ["domain"]
 
-    def get_associated_resources(self, resource_id: str) -> list[tuple[str, str]]:
-        """Get a list of associated resources.
-
-        Each entry will be a tuple containing the resource type and
-        the resource id.
-        """
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
+        """Get a list of associated resources."""
         associated_resources = []
 
         source_project = self._source_session.identity.get_project(resource_id)
         if not source_project:
             raise exception.NotFound(f"Project not found: {resource_id}")
 
-        associated_resources.append(("domain", source_project.domain_id))
+        associated_resources.append(
+            base.Resource(resource_type="domain", source_id=source_project.domain_id)
+        )
         return associated_resources
 
     def get_member_resource_types(self) -> list[str]:
@@ -54,38 +52,35 @@ class ProjectHandler(base.BaseMigrationHandler):
         """
         return ["user"]
 
-    def get_member_resources(self, resource_id: str) -> list[tuple[str, str]]:
-        """Get a list of member resources.
-
-        Each entry will be a tuple containing the resource type and
-        the resource id.
-        """
+    def get_member_resources(self, resource_id: str) -> list[base.Resource]:
+        """Get a list of member resources."""
         source_project = self._source_session.identity.get_project(resource_id)
         if not source_project:
             raise exception.NotFound(f"Project not found: {resource_id}")
 
-        member_resources: list[tuple[str, str]] = []
+        member_resources: list[base.Resource] = []
         # Query users in the same domain as the project
         # Filter to only include users with default_project_id matching this project
         for user in self._source_session.identity.users(
             domain_id=source_project.domain_id
         ):
             if user.default_project_id == source_project.id:
-                member_resources.append(("user", user.id))
+                member_resources.append(
+                    base.Resource(resource_type="user", source_id=user.id)
+                )
 
         return member_resources
 
     def perform_individual_migration(
         self,
         resource_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> str:
         """Migrate the specified resource.
 
         :param resource_id: the resource to be migrated
-        :param migrated_associated_resources: a list of tuples describing
-            associated resources that have already been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_associated_resources: a list of MigratedResource
+            objects describing migrated dependencies.
 
         Return the resulting resource id.
         """
@@ -105,7 +100,7 @@ class ProjectHandler(base.BaseMigrationHandler):
     def _build_project_kwargs(
         self,
         source_project,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> dict:
         """Build kwargs for creating a destination project."""
         kwargs: dict = {}
