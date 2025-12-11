@@ -36,7 +36,7 @@ class RouterHandler(base.BaseMigrationHandler):
         if not source_router:
             raise exception.NotFound(f"Router not found: {resource_id}")
 
-        associated_resources = []
+        associated_resources: list[base.Resource] = []
 
         external_gateway_info = (
             getattr(source_router, "external_gateway_info", None) or {}
@@ -69,7 +69,7 @@ class RouterHandler(base.BaseMigrationHandler):
         """
         return ["subnet"]
 
-    def get_member_resources(self, resource_id: str) -> list[tuple[str, str]]:
+    def get_member_resources(self, resource_id: str) -> list[base.Resource]:
         """Return internal subnets connected to this router."""
         source_router = self._source_session.network.get_router(resource_id)
         if not source_router:
@@ -94,9 +94,11 @@ class RouterHandler(base.BaseMigrationHandler):
                 if subnet_id:
                     member_subnet_ids.add(subnet_id)
 
-        member_resources = []
+        member_resources: list[base.Resource] = []
         for subnet_id in member_subnet_ids:
-            member_resources.append(("subnet", subnet_id))
+            member_resources.append(
+                base.Resource(resource_type="subnet", source_id=subnet_id)
+            )
 
         return member_resources
 
@@ -149,31 +151,27 @@ class RouterHandler(base.BaseMigrationHandler):
     def connect_member_resources_to_parent(
         self,
         parent_resource_id: str | None,
-        migrated_member_resources: list[tuple[str, str, str]],
+        migrated_member_resources: list[base.MigratedResource],
     ):
         """Connect internal member subnets to the destination router."""
-        for (
-            resource_type,
-            member_source_id,
-            dest_subnet_id,
-        ) in migrated_member_resources:
+        for member_resource in migrated_member_resources:
             LOG.info(
                 "Attaching internal subnet %s (dest %s) to router %s",
-                member_source_id,
-                dest_subnet_id,
+                member_resource.source_id,
+                member_resource.destination_id,
                 parent_resource_id,
             )
 
             try:
                 self._destination_session.network.add_interface_to_router(
                     parent_resource_id,
-                    subnet_id=dest_subnet_id,
+                    subnet_id=member_resource.destination_id,
                 )
             except openstack_exc.ConflictException:
                 LOG.debug(
                     "Interface for router %s on subnet %s already exists",
                     parent_resource_id,
-                    dest_subnet_id,
+                    member_resource.destination_id,
                 )
 
     def get_source_resource_ids(self, resource_filters: dict[str, str]) -> list[str]:

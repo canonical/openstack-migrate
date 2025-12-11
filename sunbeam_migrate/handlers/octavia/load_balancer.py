@@ -44,13 +44,14 @@ class LoadBalancerHandler(base.BaseMigrationHandler):
         if source_load_balancer.vip_subnet_id:
             associated_resources.append(
                 base.Resource(
-                    resource_type="subnet",
-                    source_id=source_load_balancer.vip_subnet_id)
+                    resource_type="subnet", source_id=source_load_balancer.vip_subnet_id
+                )
             )
         if source_load_balancer.vip_network_id:
             associated_resources.append(
                 base.Resource(
-                    resource_type="network", source_id=source_load_balancer.vip_network_id
+                    resource_type="network",
+                    source_id=source_load_balancer.vip_network_id,
                 )
             )
 
@@ -70,7 +71,9 @@ class LoadBalancerHandler(base.BaseMigrationHandler):
                 member_subnet_id = getattr(member, "subnet_id", None)
                 if member_subnet_id:
                     associated_resources.append(
-                        base.Resource(resource_type="subnet", source_id=member_subnet_id)
+                        base.Resource(
+                            resource_type="subnet", source_id=member_subnet_id
+                        )
                     )
 
         return associated_resources

@@ -43,7 +43,9 @@ class ShareHandler(base.BaseMigrationHandler):
 
         if source_share.share_type:
             associated_resources.append(
-                base.Resource(resource_type="share-type", source_id=source_share.share_type)
+                base.Resource(
+                    resource_type="share-type", source_id=source_share.share_type
+                )
             )
 
         return associated_resources

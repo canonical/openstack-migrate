@@ -52,24 +52,22 @@ class ProjectHandler(base.BaseMigrationHandler):
         """
         return ["user"]
 
-    def get_member_resources(self, resource_id: str) -> list[tuple[str, str]]:
-        """Get a list of member resources.
-
-        Each entry will be a tuple containing the resource type and
-        the resource id.
-        """
+    def get_member_resources(self, resource_id: str) -> list[base.Resource]:
+        """Get a list of member resources."""
         source_project = self._source_session.identity.get_project(resource_id)
         if not source_project:
             raise exception.NotFound(f"Project not found: {resource_id}")
 
-        member_resources: list[tuple[str, str]] = []
+        member_resources: list[base.Resource] = []
         # Query users in the same domain as the project
         # Filter to only include users with default_project_id matching this project
         for user in self._source_session.identity.users(
             domain_id=source_project.domain_id
         ):
             if user.default_project_id == source_project.id:
-                member_resources.append(("user", user.id))
+                member_resources.append(
+                    base.Resource(resource_type="user", source_id=user.id)
+                )
 
         return member_resources
 

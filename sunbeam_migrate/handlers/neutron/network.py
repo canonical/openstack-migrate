@@ -35,17 +35,19 @@ class NetworkHandler(base.BaseMigrationHandler):
         """
         return ["subnet"]
 
-    def get_member_resources(self, resource_id: str) -> list[tuple[str, str]]:
+    def get_member_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the subnets that belong to this network."""
         source_network = self._source_session.network.get_network(resource_id)
         if not source_network:
             raise exception.NotFound(f"Network not found: {resource_id}")
 
-        member_resources: list[tuple[str, str]] = []
+        member_resources: list[base.Resource] = []
         for subnet in self._source_session.network.subnets(
             network_id=source_network.id
         ):
-            member_resources.append(("subnet", subnet.id))
+            member_resources.append(
+                base.Resource(resource_type="subnet", source_id=subnet.id)
+            )
         return member_resources
 
     def perform_individual_migration(

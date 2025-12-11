@@ -81,7 +81,10 @@ class InstanceHandler(base.BaseMigrationHandler):
         # "preserve_root_disk", allowing the original image to be used instead.
         #
         # if source_instance.image and source_instance.image.get("id"):
-        #     associated_resources.append(base.Resource(resource_type="image", source_id=source_instance.image["id"]))
+        #     associated_resources.append(
+        #         base.Resource(
+        #             resource_type="image",
+        #             source_id=source_instance.image["id"]))
 
         # Volumes attached to the instance.
         #

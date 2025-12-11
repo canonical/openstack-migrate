@@ -44,7 +44,8 @@ class SecurityGroupRuleHandler(base.BaseMigrationHandler):
         if source_rule.remote_group_id:
             resources.append(
                 base.Resource(
-                    resource_type="security-group", source_id=source_rule.remote_group_id
+                    resource_type="security-group",
+                    source_id=source_rule.remote_group_id,
                 )
             )
         return resources

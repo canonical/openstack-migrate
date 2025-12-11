@@ -97,11 +97,8 @@ class BaseMigrationHandler(abc.ABC):
         """
         return []
 
-    def get_member_resources(self, resource_id: str) -> list[tuple[str, str]]:
+    def get_member_resources(self, resource_id: str) -> list[Resource]:
         """Get a list of member resources.
-
-        Each entry will be a tuple containing the resource type and
-        the resource id.
 
         We're using a list instead of a dict so that the handler can control
         the order in which associated resources are migrated.
@@ -146,9 +143,8 @@ class BaseMigrationHandler(abc.ABC):
 
         :param parent_resource_id: The destination ID of the parent resource,
                                    having the same type as that of the handler.
-        :param migrated_member_resources: A list of tuples describing
-            member resources that have been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_member_resources: a list of MigratedResource
+               objects describing migrated member resources.
         """
         pass
 

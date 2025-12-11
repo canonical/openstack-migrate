@@ -32,28 +32,28 @@ class DomainHandler(base.BaseMigrationHandler):
         """
         return ["project", "user"]
 
-    def get_member_resources(self, resource_id: str) -> list[tuple[str, str]]:
-        """Get a list of member resources.
-
-        Each entry will be a tuple containing the resource type and
-        the resource id.
-        """
+    def get_member_resources(self, resource_id: str) -> list[base.Resource]:
+        """Get a list of member resources."""
         source_domain = self._source_session.identity.get_domain(resource_id)
         if not source_domain:
             raise exception.NotFound(f"Domain not found: {resource_id}")
 
-        member_resources: list[tuple[str, str]] = []
+        member_resources: list[base.Resource] = []
         # Add projects belonging to this domain
         for project in self._source_session.identity.projects(
             domain_id=source_domain.id
         ):
-            member_resources.append(("project", project.id))
+            member_resources.append(
+                base.Resource(resource_type="project", source_id=project.id)
+            )
 
         # Add users belonging to this domain that don't have a project assigned
         for user in self._source_session.identity.users(domain_id=source_domain.id):
             # Only include users without a default_project_id
             if not user.default_project_id:
-                member_resources.append(("user", user.id))
+                member_resources.append(
+                    base.Resource(resource_type="user", source_id=user.id)
+                )
 
         return member_resources
 

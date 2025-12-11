@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import typing
 
 from sunbeam_migrate import config, constants, exception
 from sunbeam_migrate.db import api as db_api
@@ -211,12 +212,12 @@ class SunbeamMigrationManager:
         """Handle member resource migration logic."""
         migrated_member_resources: list[base.MigratedResource] = []
         member_resources = handler.get_member_resources(resource_id)
-        for member_resource_type, member_resource_id in member_resources:
+        for member_resource in member_resources:
             # Check if this resource is already migrated or being migrated
             # (could have been migrated as an associated resource earlier)
             migrations = db_api.get_migrations(
-                source_id=member_resource_id,
-                resource_type=member_resource_type,
+                source_id=member_resource.source_id,
+                resource_type=member_resource.resource_type,
             )
             if migrations:
                 latest = migrations[0]
@@ -224,8 +225,8 @@ class SunbeamMigrationManager:
                     LOG.info(
                         "Member resource %s %s already completed (migration %s - %s), "
                         "skipping duplicate migration",
-                        member_resource_type,
-                        member_resource_id,
+                        member_resource.resource_type,
+                        member_resource.source_id,
                         latest.uuid,
                         latest.status,
                     )
@@ -234,8 +235,8 @@ class SunbeamMigrationManager:
                     LOG.info(
                         "Member resource %s %s already in progress (migration %s), "
                         "skipping duplicate migration",
-                        member_resource_type,
-                        member_resource_id,
+                        member_resource.resource_type,
+                        member_resource.source_id,
                         latest.uuid,
                     )
                     continue
@@ -243,13 +244,13 @@ class SunbeamMigrationManager:
 
             LOG.info(
                 "Migrating member %s resource: %s",
-                member_resource_type,
-                member_resource_id,
+                member_resource.resource_type,
+                member_resource.source_id,
             )
             try:
                 migrated_member = self.perform_individual_migration(
-                    member_resource_type,
-                    member_resource_id,
+                    member_resource.resource_type,
+                    member_resource.source_id,
                     cleanup_source=cleanup_source,
                     include_dependencies=include_dependencies,
                     include_members=include_members,
@@ -260,8 +261,8 @@ class SunbeamMigrationManager:
             except Exception as ex:
                 LOG.error(
                     "Failed to migrate member resource %s %s: %r",
-                    member_resource_type,
-                    member_resource_id,
+                    member_resource.resource_type,
+                    member_resource.source_id,
                     ex,
                 )
 
