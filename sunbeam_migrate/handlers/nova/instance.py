@@ -118,7 +118,7 @@ class InstanceHandler(base.BaseMigrationHandler):
     def _get_block_device_mapping(
         self,
         source_instance,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> list[dict[str, Any]]:
         block_device_mapping = []
         for volume_attached in source_instance.attached_volumes or []:
@@ -149,14 +149,13 @@ class InstanceHandler(base.BaseMigrationHandler):
     def perform_individual_migration(
         self,
         resource_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> str:
         """Migrate the specified resource.
 
         :param resource_id: the resource to be migrated
-        :param migrated_associated_resources: a list of tuples describing
-            associated resources that have already been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_associated_resources: a list of MigratedResource
+            objects describing migrated dependencies.
 
         Return the resulting resource id.
         """
@@ -237,7 +236,7 @@ class InstanceHandler(base.BaseMigrationHandler):
         source_instance: Any,
         source_flavor_id: str,
         destination_image_id: str | None,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> dict[str, Any]:
         """Build keyword arguments for creating an instance."""
         kwargs: dict[str, Any] = {

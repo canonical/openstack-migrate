@@ -24,7 +24,7 @@ class FlavorHandler(base.BaseMigrationHandler):
     def perform_individual_migration(
         self,
         resource_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> str:
         """Migrate a single flavor and return the destination id."""
         source_flavor = self._source_session.compute.get_flavor(resource_id)

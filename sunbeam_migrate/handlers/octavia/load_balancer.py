@@ -85,14 +85,13 @@ class LoadBalancerHandler(base.BaseMigrationHandler):
     def perform_individual_migration(
         self,
         resource_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> str:
         """Migrate the specified resource.
 
         :param resource_id: the resource to be migrated
-        :param migrated_associated_resources: a list of tuples describing
-            associated resources that have already been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_associated_resources: a list of MigratedResource
+            objects describing migrated dependencies.
 
         Return the resulting resource id.
         """
@@ -244,14 +243,13 @@ class LoadBalancerHandler(base.BaseMigrationHandler):
     def _create_destination_load_balancer(
         self,
         source_lb,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> str:
         """Create a load balancer on the destination cloud.
 
         :param source_lb: the source load balancer object
-        :param migrated_associated_resources: a list of tuples describing
-            associated resources that have already been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_associated_resources: a list of MigratedResource
+            objects describing migrated dependencies.
 
         Return the destination load balancer ID.
         """
@@ -375,15 +373,15 @@ class LoadBalancerHandler(base.BaseMigrationHandler):
         source_member,
         dest_pool_id: str,
         source_pool_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ):
         """Create a pool member on the destination cloud.
 
         :param source_member: the source member object
         :param dest_pool_id: the destination pool ID
         :param source_pool_id: the source pool ID (for logging)
-        :param migrated_associated_resources: a list of tuples describing
-            associated resources that have already been migrated.
+        :param migrated_associated_resources: a list of MigratedResource
+            objects describing migrated dependencies.
         """
         fields = [
             "name",

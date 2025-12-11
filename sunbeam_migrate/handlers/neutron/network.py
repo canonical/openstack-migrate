@@ -51,14 +51,13 @@ class NetworkHandler(base.BaseMigrationHandler):
     def perform_individual_migration(
         self,
         resource_id: str,
-        migrated_associated_resources: list[tuple[str, str, str]],
+        migrated_associated_resources: list[base.MigratedResource],
     ) -> str:
         """Migrate the specified resource.
 
         :param resource_id: the resource to be migrated
-        :param migrated_associated_resources: a list of tuples describing
-            associated resources that have already been migrated.
-            Format: (resource_type, source_id, destination_id)
+        :param migrated_associated_resources: a list of MigratedResource
+            objects describing migrated dependencies.
 
         Return the resulting resource id.
         """
