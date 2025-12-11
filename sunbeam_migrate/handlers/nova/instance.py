@@ -53,7 +53,11 @@ class InstanceHandler(base.BaseMigrationHandler):
         # if we choose to no longer create ports manually.
         for port in self._source_session.network.ports(device_id=source_instance.id):
             associated_resources.append(
-                base.Resource(resource_type="port", source_id=port.id)
+                base.Resource(
+                    resource_type="port",
+                    source_id=port.id,
+                    should_cleanup=True,
+                )
             )
 
         # Flavor
@@ -92,8 +96,13 @@ class InstanceHandler(base.BaseMigrationHandler):
         # data. Cinder must be configured with `enable_force_upload = True` in order
         # to upload attached volumes.
         for volume in source_instance.attached_volumes or []:
+            # TODO: set should_cleanup=False if the volume has multiple attachments.
             associated_resources.append(
-                base.Resource(resource_type="volume", source_id=volume["id"])
+                base.Resource(
+                    resource_type="volume",
+                    source_id=volume["id"],
+                    should_cleanup=True,
+                )
             )
 
         return associated_resources

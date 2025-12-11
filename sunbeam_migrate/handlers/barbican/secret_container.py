@@ -37,7 +37,9 @@ class SecretContainerHandler(base.BaseMigrationHandler):
         for secret_ref_dict in container.secret_refs:
             associated_resources.append(
                 base.Resource(
-                    resource_type="secret", source_id=secret_ref_dict["secret_ref"]
+                    resource_type="secret",
+                    source_id=secret_ref_dict["secret_ref"],
+                    should_cleanup=True,
                 )
             )
 

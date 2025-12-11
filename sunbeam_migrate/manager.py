@@ -90,7 +90,7 @@ class SunbeamMigrationManager:
         """Handle the parent resource migration logic.
 
         Returns a migration object for the requested resource and a list of
-        associated (dependency) migrations.
+        associated (dependency) migrations that can be cleaned up.
         """
         LOG.info("Initiating %s migration, resource id: %s", resource_type, resource_id)
 
@@ -104,7 +104,7 @@ class SunbeamMigrationManager:
         )
         migration.save()
 
-        associated_migrations = []
+        cleanup_associated_migrations = []
         try:
             associated_resources = self._get_associated_resources(
                 resource_type, resource_id
@@ -140,8 +140,6 @@ class SunbeamMigrationManager:
                                 existing[0].uuid,
                                 existing[0].status,
                             )
-                            # Add it to associated_migrations for cleanup tracking
-                            associated_migrations.append(existing[0])
                             continue
                         elif existing[0].status == constants.STATUS_IN_PROGRESS:
                             LOG.info(
@@ -166,7 +164,18 @@ class SunbeamMigrationManager:
                         include_members=include_members,
                     )
                     # Indirect dependencies will not be included.
-                    associated_migrations.append(associated_migration)
+                    if associated_resource.should_cleanup:
+                        LOG.debug(
+                            "Adding associated resource to the cleanup list: %s",
+                            associated_resource,
+                        )
+                        cleanup_associated_migrations.append(associated_migration)
+                    else:
+                        LOG.debug(
+                            "The associated resource should not be cleaned up: %s, "
+                            "it may be shared with other resources.",
+                            associated_resource,
+                        )
 
                 # Refresh the associated resources and ensure that all of them have
                 # been migrated.
@@ -199,7 +208,8 @@ class SunbeamMigrationManager:
             resource_type,
             destination_id,
         )
-        return migration, associated_migrations
+
+        return migration, cleanup_associated_migrations
 
     def _migrate_member_resources(
         self,
