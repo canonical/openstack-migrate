@@ -87,8 +87,12 @@ class FloatingIPHandler(base.BaseMigrationHandler):
             )
         (router_id, router_subnet_id) = self._get_router_from_floating_ip(source_fip)
         if router_id and router_subnet_id:
-            associated_resources.append(base.Resource(resource_type="router", source_id=router_id))
-            associated_resources.append(base.Resource(resource_type="subnet", source_id=router_subnet_id))
+            associated_resources.append(
+                base.Resource(resource_type="router", source_id=router_id)
+            )
+            associated_resources.append(
+                base.Resource(resource_type="subnet", source_id=router_subnet_id)
+            )
 
         return associated_resources
 
@@ -145,7 +149,9 @@ class FloatingIPHandler(base.BaseMigrationHandler):
         kwargs["floating_network_id"] = destination_network_id
         if dest_subnet_id:
             kwargs["subnet_id"] = dest_subnet_id
-        (source_router_id, source_subnet_id) = self._get_router_from_floating_ip(source_fip)
+        (source_router_id, source_subnet_id) = self._get_router_from_floating_ip(
+            source_fip
+        )
         if source_router_id and source_subnet_id:
             try:
                 dest_router_id = self._get_associated_resource_destination_id(
@@ -168,7 +174,7 @@ class FloatingIPHandler(base.BaseMigrationHandler):
                     port_subnet_id,
                     dest_router_id,
                 )
-            except exception.NotFound as exc:
+            except exception.NotFound:
                 LOG.warning(
                     "Router %s not found in migrated associated resources, "
                     "skipping interface addition on destination",
@@ -198,7 +204,9 @@ class FloatingIPHandler(base.BaseMigrationHandler):
     def _delete_resource(self, resource_id: str, openstack_session):
         openstack_session.network.delete_ip(resource_id, ignore_missing=True)
 
-    def _get_router_from_floating_ip(self, floating_ip) -> tuple[str | None, str | None]:
+    def _get_router_from_floating_ip(
+        self, floating_ip
+    ) -> tuple[str | None, str | None]:
         """Get the router ID associated with a subnet.
 
         :param floating_ip: the floating IP object
