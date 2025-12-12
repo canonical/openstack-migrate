@@ -56,3 +56,26 @@ def create_test_security_group_rule(session, security_group, **overrides):
     rule = session.network.create_security_group_rule(**rule_kwargs)
     # Refresh rule information.
     return session.network.get_security_group_rule(rule.id)
+
+
+def create_test_router(
+    session, external_network=None, external_subnet=None, attach_subnet_id=None
+):
+    """Create a test router with optional external gateway and attached subnet."""
+    kwargs = {
+        "name": test_utils.get_test_resource_name(),
+        "is_admin_state_up": True,
+    }
+
+    if external_network:
+        external_gateway_info = {"network_id": external_network.id}
+        if external_subnet:
+            external_gateway_info["external_fixed_ips"] = [
+                {"subnet_id": external_subnet.id}
+            ]
+        kwargs["external_gateway_info"] = external_gateway_info
+
+    router = session.network.create_router(**kwargs)
+    if attach_subnet_id:
+        session.network.add_interface_to_router(router, subnet_id=attach_subnet_id)
+    return session.network.get_router(router.id)

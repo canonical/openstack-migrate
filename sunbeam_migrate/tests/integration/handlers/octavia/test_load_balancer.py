@@ -7,27 +7,10 @@ from openstack import exceptions as openstack_exc
 
 from sunbeam_migrate import config
 from sunbeam_migrate.tests.integration import utils as test_utils
+from sunbeam_migrate.tests.integration.handlers.neutron import utils as neutron_utils
 
 CONF = config.get_config()
 LOG = logging.getLogger(__name__)
-
-
-def _create_test_network(session):
-    network = session.network.create_network(name=test_utils.get_test_resource_name())
-
-    # Refresh network information.
-    return session.network.get_network(network.id)
-
-
-def _create_test_subnet(session, network):
-    subnet = session.network.create_subnet(
-        network_id=network.id,
-        ip_version=4,
-        cidr="11.11.10.0/24",
-        name=test_utils.get_test_resource_name(),
-    )
-    # Refresh subnet information.
-    return session.network.get_subnet(subnet.id)
 
 
 def _create_test_load_balancer(session, vip_subnet_id, vip_network_id):
@@ -251,6 +234,46 @@ def _cleanup_ports(session, network_id: str):
             )
 
 
+def _cleanup_router(session, router_id: str, subnet_id: str):
+    try:
+        session.network.remove_interface_from_router(router_id, subnet_id=subnet_id)
+    except openstack_exc.NotFoundException:
+        pass
+    except Exception as exc:
+        LOG.warning(
+            "Failed removing interface from router %s for subnet %s: %s",
+            router_id,
+            subnet_id,
+            exc,
+        )
+
+    try:
+        session.network.update_router(router_id, external_gateway_info=None)
+    except openstack_exc.NotFoundException:
+        pass
+    except Exception as exc:
+        LOG.warning("Failed clearing gateway for router %s: %s", router_id, exc)
+
+    try:
+        session.network.delete_router(router_id, ignore_missing=True)
+    except Exception as exc:
+        LOG.warning("Failed deleting router %s: %s", router_id, exc)
+
+
+def _create_floating_ip_for_load_balancer(
+    session, external_network_id: str, port_id: str, subnet_id: str | None
+):
+    kwargs = {
+        "floating_network_id": external_network_id,
+        "port_id": port_id,
+        "description": "sunbeam-migrate load balancer floating ip test",
+    }
+    if subnet_id:
+        kwargs["subnet_id"] = subnet_id
+    floating_ip = session.network.create_ip(**kwargs)
+    return session.network.get_ip(floating_ip.id)
+
+
 def test_migrate_simple_load_balancer_and_cleanup(
     request,
     test_config_path,
@@ -259,14 +282,16 @@ def test_migrate_simple_load_balancer_and_cleanup(
     test_destination_session,
 ):
     # Create network and subnet for VIP
-    network = _create_test_network(test_source_session)
+    network = neutron_utils.create_test_network(test_source_session)
     request.addfinalizer(
         lambda: test_source_session.network.delete_network(
             network.id, ignore_missing=True
         )
     )
 
-    subnet = _create_test_subnet(test_source_session, network)
+    subnet = neutron_utils.create_test_subnet(
+        test_source_session, network, cidr="11.11.10.0/24"
+    )
     request.addfinalizer(
         lambda: test_source_session.network.delete_subnet(
             subnet.id, ignore_missing=True
@@ -336,6 +361,167 @@ def test_migrate_simple_load_balancer_and_cleanup(
     )
 
 
+def test_migrate_load_balancer_with_floating_ip_and_router(
+    request,
+    test_config_path,
+    test_credentials,
+    test_source_session,
+    test_destination_session,
+):
+    external_network = neutron_utils.create_test_network(
+        test_source_session, is_router_external=True
+    )
+    request.addfinalizer(
+        lambda: test_source_session.network.delete_network(
+            external_network.id, ignore_missing=True
+        )
+    )
+
+    external_subnet = neutron_utils.create_test_subnet(
+        test_source_session, external_network, cidr="172.30.10.0/24"
+    )
+    request.addfinalizer(
+        lambda: test_source_session.network.delete_subnet(
+            external_subnet.id, ignore_missing=True
+        )
+    )
+
+    network = neutron_utils.create_test_network(test_source_session)
+    request.addfinalizer(
+        lambda: test_source_session.network.delete_network(
+            network.id, ignore_missing=True
+        )
+    )
+
+    subnet = neutron_utils.create_test_subnet(
+        test_source_session, network, cidr="11.11.10.0/24"
+    )
+    request.addfinalizer(
+        lambda: test_source_session.network.delete_subnet(
+            subnet.id, ignore_missing=True
+        )
+    )
+
+    router = neutron_utils.create_test_router(
+        test_source_session,
+        external_network,
+        external_subnet,
+        attach_subnet_id=subnet.id,
+    )
+    request.addfinalizer(
+        lambda: _cleanup_router(test_source_session, router.id, subnet.id)
+    )
+
+    lb = _create_test_load_balancer(test_source_session, subnet.id, network.id)
+    request.addfinalizer(
+        lambda: test_source_session.load_balancer.delete_load_balancer(
+            lb.id, ignore_missing=True, cascade=True
+        )
+    )
+
+    floating_ip = _create_floating_ip_for_load_balancer(
+        test_source_session, external_network.id, lb.vip_port_id, external_subnet.id
+    )
+    request.addfinalizer(
+        lambda: test_source_session.network.delete_ip(
+            floating_ip.id, ignore_missing=True
+        )
+    )
+
+    test_utils.call_migrate(
+        test_config_path,
+        [
+            "start",
+            "--resource-type=load-balancer",
+            "--include-dependencies",
+            lb.id,
+        ],
+    )
+
+    dest_lb = test_destination_session.load_balancer.find_load_balancer(lb.name)
+    assert dest_lb, "couldn't find migrated load balancer"
+    _check_migrated_load_balancer(lb, dest_lb)
+
+    dest_fip = test_destination_session.network.find_ip(floating_ip.floating_ip_address)
+    assert dest_fip, "couldn't find migrated floating IP"
+    assert dest_fip.port_id == dest_lb.vip_port_id, "floating IP not bound to VIP port"
+
+    dest_network_id = test_utils.get_destination_resource_id(
+        test_config_path, "network", network.id
+    )
+    dest_subnet_id = test_utils.get_destination_resource_id(
+        test_config_path, "subnet", subnet.id
+    )
+    dest_external_network_id = test_utils.get_destination_resource_id(
+        test_config_path, "network", external_network.id
+    )
+    dest_external_subnet_id = test_utils.get_destination_resource_id(
+        test_config_path, "subnet", external_subnet.id
+    )
+    dest_router_id = test_utils.get_destination_resource_id(
+        test_config_path, "router", router.id
+    )
+    dest_router = test_destination_session.network.get_router(dest_router_id)
+    assert dest_router, "router dependency not migrated"
+
+    gateway_info = getattr(dest_router, "external_gateway_info", {}) or {}
+    assert gateway_info.get("network_id") == dest_external_network_id, (
+        "router gateway not mapped to destination external network"
+    )
+
+    router_ports = list(
+        test_destination_session.network.ports(
+            device_id=dest_router.id, device_owner="network:router_interface"
+        )
+    )
+    assert any(port.network_id == dest_network_id for port in router_ports), (
+        "router is not attached to destination VIP network"
+    )
+
+    dest_lb_port = test_destination_session.network.get_port(dest_lb.vip_port_id)
+    assert dest_lb_port, "destination load balancer VIP port missing"
+    assert dest_lb_port.network_id == dest_network_id, (
+        "VIP port not mapped to destination network"
+    )
+    assert dest_fip.floating_network_id == dest_external_network_id, (
+        "floating network was not mapped to destination"
+    )
+
+    request.addfinalizer(
+        lambda: test_destination_session.network.delete_network(
+            dest_external_network_id, ignore_missing=True
+        )
+    )
+    request.addfinalizer(
+        lambda: test_destination_session.network.delete_subnet(
+            dest_external_subnet_id, ignore_missing=True
+        )
+    )
+    request.addfinalizer(
+        lambda: test_destination_session.network.delete_network(
+            dest_network_id, ignore_missing=True
+        )
+    )
+    request.addfinalizer(
+        lambda: test_destination_session.network.delete_subnet(
+            dest_subnet_id, ignore_missing=True
+        )
+    )
+    request.addfinalizer(
+        lambda: _cleanup_router(
+            test_destination_session, dest_router_id, dest_subnet_id
+        )
+    )
+    request.addfinalizer(
+        lambda: _cleanup_destination_load_balancer(test_destination_session, dest_lb.id)
+    )
+    request.addfinalizer(
+        lambda: test_destination_session.network.delete_ip(
+            dest_fip.id, ignore_missing=True
+        )
+    )
+
+
 def test_migrate_load_balancer_with_listener_pool_and_members(
     request,
     test_config_path,
@@ -344,14 +530,16 @@ def test_migrate_load_balancer_with_listener_pool_and_members(
     test_destination_session,
 ):
     # Create network and subnet for VIP
-    network = _create_test_network(test_source_session)
+    network = neutron_utils.create_test_network(test_source_session)
     request.addfinalizer(
         lambda: test_source_session.network.delete_network(
             network.id, ignore_missing=True
         )
     )
 
-    subnet = _create_test_subnet(test_source_session, network)
+    subnet = neutron_utils.create_test_subnet(
+        test_source_session, network, cidr="11.11.10.0/24"
+    )
     request.addfinalizer(
         lambda: test_source_session.network.delete_subnet(
             subnet.id, ignore_missing=True

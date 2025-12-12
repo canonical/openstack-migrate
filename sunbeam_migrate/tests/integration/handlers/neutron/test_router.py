@@ -5,25 +5,6 @@ from sunbeam_migrate.tests.integration import utils as test_utils
 from sunbeam_migrate.tests.integration.handlers.neutron import utils as neutron_utils
 
 
-def _create_test_router(session, external_network=None, external_subnet=None):
-    kwargs = {
-        "name": test_utils.get_test_resource_name(),
-        "is_admin_state_up": True,
-    }
-
-    if external_network:
-        external_gateway_info = {"network_id": external_network.id}
-        if external_subnet:
-            external_gateway_info["external_fixed_ips"] = [
-                {"subnet_id": external_subnet.id}
-            ]
-        kwargs["external_gateway_info"] = external_gateway_info
-
-    router = session.network.create_router(**kwargs)
-    # Refresh router information.
-    return session.network.get_router(router.id)
-
-
 def _check_migrated_router(source_router, destination_router):
     fields = [
         "availability_zone_hints",
@@ -47,7 +28,7 @@ def test_migrate_router_and_cleanup(
     test_source_session,
     test_destination_session,
 ):
-    router = _create_test_router(test_source_session)
+    router = neutron_utils.create_test_router(test_source_session)
     request.addfinalizer(lambda: test_source_session.network.delete_router(router.id))
 
     test_utils.call_migrate(
@@ -104,7 +85,9 @@ def test_migrate_router_with_dependencies_and_members(
     )
 
     # Create router with external gateway
-    router = _create_test_router(test_source_session, external_network, external_subnet)
+    router = neutron_utils.create_test_router(
+        test_source_session, external_network, external_subnet
+    )
     request.addfinalizer(lambda: test_source_session.network.delete_router(router.id))
 
     # Attach internal subnet to router
