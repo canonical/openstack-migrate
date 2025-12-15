@@ -30,7 +30,10 @@ class FloatingIPHandler(base.BaseMigrationHandler):
 
         Associated resources must be migrated first.
         """
-        return ["network", "subnet", "router"]
+        types = ["network", "subnet", "router"]
+        if CONF.multitenant_mode:
+            types.append("project")
+        return types
 
     def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the network and subnet this floating IP depends on."""

@@ -51,11 +51,15 @@ class VolumeHandler(base.BaseMigrationHandler):
 
         These filters can be specified when initiating batch migrations.
         """
-        return ["owner_id"]
+        return ["project_id"]
 
     def get_associated_resource_types(self) -> list[str]:
         """Get a list of associated resource types."""
-        return ["volume-type"]
+        types = ["volume-type"]
+        if CONF.multitenant_mode:
+            types.append("project")
+            types.append("user")
+        return types
 
     def _get_source_volume_type_id(
         self,

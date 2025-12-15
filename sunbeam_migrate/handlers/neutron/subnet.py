@@ -26,7 +26,10 @@ class SubnetHandler(base.BaseMigrationHandler):
 
         Associated resources must be migrated first.
         """
-        return ["network"]
+        types = ["network"]
+        if CONF.multitenant_mode:
+            types.append("project")
+        return types
 
     def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the source resources this subnet depends on."""

@@ -28,7 +28,10 @@ class RouterHandler(base.BaseMigrationHandler):
 
         Associated resources must be migrated first.
         """
-        return ["network", "subnet"]
+        types = ["network", "subnet"]
+        if CONF.multitenant_mode:
+            types.append("project")
+        return types
 
     def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the source resources this router depends on."""

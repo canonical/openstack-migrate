@@ -25,7 +25,7 @@ class InstanceHandler(base.BaseMigrationHandler):
 
     def get_associated_resource_types(self) -> list[str]:
         """Get a list of associated resource types."""
-        return [
+        types = [
             "image",
             "volume",
             "flavor",
@@ -33,6 +33,9 @@ class InstanceHandler(base.BaseMigrationHandler):
             "network",
             "port",
         ]
+        if CONF.multitenant_mode:
+            types.append("project")
+        return types
 
     def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the source resources this instance depends on."""

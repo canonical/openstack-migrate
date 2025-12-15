@@ -29,7 +29,10 @@ class SecurityGroupRuleHandler(base.BaseMigrationHandler):
 
     def get_associated_resource_types(self) -> list[str]:
         """Security group rules depend on their security group."""
-        return ["security-group"]
+        types = ["security-group"]
+        if CONF.multitenant_mode:
+            types.append("project")
+        return types
 
     def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the security groups referenced by this rule."""

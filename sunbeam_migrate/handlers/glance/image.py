@@ -23,6 +23,16 @@ class ImageHandler(base.BaseMigrationHandler):
         """
         return ["project_id"]
 
+    def get_associated_resource_types(self) -> list[str]:
+        """Get a list of associated resource types.
+
+        Associated resources must be migrated first.
+        """
+        types = []
+        if CONF.multitenant_mode:
+            types.append("project")
+        return types
+
     def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the source resources this image depends on."""
         source_image = self._source_session.get_image(resource_id)

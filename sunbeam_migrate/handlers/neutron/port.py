@@ -3,9 +3,10 @@
 
 import logging
 
-from sunbeam_migrate import exception
+from sunbeam_migrate import config, exception
 from sunbeam_migrate.handlers import base
 
+CONF = config.get_config()
 LOG = logging.getLogger()
 
 
@@ -29,7 +30,10 @@ class PortHandler(base.BaseMigrationHandler):
         Ports depend on networks, subnets, and security groups,
         which must be migrated first.
         """
-        return ["network", "subnet", "security-group"]
+        types = ["network", "subnet", "security-group"]
+        if CONF.multitenant_mode:
+            types.append("project")
+        return types
 
     def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Return the source resources this port depends on."""

@@ -32,7 +32,10 @@ class ShareHandler(base.BaseMigrationHandler):
 
         Shares depend on share types.
         """
-        return ["share-type"]
+        types = ["share-type"]
+        if CONF.multitenant_mode:
+            types.append("project")
+        return types
 
     def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
         """Get a list of associated resources."""
