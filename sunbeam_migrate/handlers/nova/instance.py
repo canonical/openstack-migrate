@@ -21,7 +21,7 @@ class InstanceHandler(base.BaseMigrationHandler):
 
     def get_supported_resource_filters(self) -> list[str]:
         """Return supported batch filters."""
-        return ["owner_id"]
+        return ["project_id"]
 
     def get_associated_resource_types(self) -> list[str]:
         """Get a list of associated resource types."""
@@ -40,7 +40,10 @@ class InstanceHandler(base.BaseMigrationHandler):
         if not source_instance:
             raise exception.NotFound(f"Instance not found: {resource_id}")
 
-        associated_resources = []
+        associated_resources: list[base.Resource] = []
+        self._report_identity_dependencies(
+            associated_resources, project_id=source_instance.project_id
+        )
 
         # Ports attached to the instance
         #
@@ -297,6 +300,12 @@ class InstanceHandler(base.BaseMigrationHandler):
         if block_device_mapping:
             kwargs["block_device_mapping_v2"] = block_device_mapping
 
+        identity_kwargs = self._get_identity_build_kwargs(
+            migrated_associated_resources,
+            source_project_id=source_instance.project_id,
+        )
+        kwargs.update(identity_kwargs)
+
         # Optional fields
         optional_fields = [
             "availability_zone",
@@ -320,8 +329,8 @@ class InstanceHandler(base.BaseMigrationHandler):
         self._validate_resource_filters(resource_filters)
 
         query_filters = {}
-        if "owner_id" in resource_filters:
-            query_filters["project_id"] = resource_filters["owner_id"]
+        if "project_id" in resource_filters:
+            query_filters["project_id"] = resource_filters["project_id"]
 
         resource_ids: list[str] = []
         for instance in self._source_session.compute.servers(**query_filters):

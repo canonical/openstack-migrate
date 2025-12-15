@@ -22,7 +22,7 @@ class LoadBalancerHandler(base.BaseMigrationHandler):
 
         These filters can be specified when initiating batch migrations.
         """
-        return ["owner_id"]
+        return ["project_id"]
 
     def get_associated_resource_types(self) -> list[str]:
         """Get a list of associated resource types.
@@ -40,6 +40,9 @@ class LoadBalancerHandler(base.BaseMigrationHandler):
             raise exception.NotFound(f"Load balancer not found: {resource_id}")
 
         associated_resources: list[base.Resource] = []
+        self._report_identity_dependencies(
+            associated_resources, project_id=source_load_balancer.project_id
+        )
 
         if source_load_balancer.vip_subnet_id:
             associated_resources.append(
@@ -259,8 +262,8 @@ class LoadBalancerHandler(base.BaseMigrationHandler):
         self._validate_resource_filters(resource_filters)
 
         query_filters = {}
-        if "owner_id" in resource_filters:
-            query_filters["project_id"] = resource_filters["owner_id"]
+        if "project_id" in resource_filters:
+            query_filters["project_id"] = resource_filters["project_id"]
 
         resource_ids = []
         for resource in self._source_session.load_balancer.load_balancers(
@@ -334,6 +337,12 @@ class LoadBalancerHandler(base.BaseMigrationHandler):
         # Preserve VIP address
         if hasattr(source_lb, "vip_address") and source_lb.vip_address:
             kwargs["vip_address"] = source_lb.vip_address
+
+        identity_kwargs = self._get_identity_build_kwargs(
+            migrated_associated_resources,
+            source_project_id=source_lb.project_id,
+        )
+        kwargs.update(identity_kwargs)
 
         dest_lb = self._destination_session.load_balancer.create_load_balancer(**kwargs)
         LOG.info(

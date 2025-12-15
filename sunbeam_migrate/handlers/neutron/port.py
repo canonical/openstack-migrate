@@ -37,7 +37,10 @@ class PortHandler(base.BaseMigrationHandler):
         if not source_port:
             raise exception.NotFound(f"Port not found: {resource_id}")
 
-        associated_resources = []
+        associated_resources: list[base.Resource] = []
+        self._report_identity_dependencies(
+            associated_resources, project_id=source_port.project_id
+        )
         if source_port.network_id:
             associated_resources.append(
                 base.Resource(resource_type="network", source_id=source_port.network_id)
@@ -150,6 +153,12 @@ class PortHandler(base.BaseMigrationHandler):
             kwargs["security_group_ids"] = destination_security_group_ids
         if destination_fixed_ips:
             kwargs["fixed_ips"] = destination_fixed_ips
+
+        identity_kwargs = self._get_identity_build_kwargs(
+            migrated_associated_resources,
+            source_project_id=source_port.project_id,
+        )
+        kwargs.update(identity_kwargs)
 
         destination_port = self._destination_session.network.create_port(**kwargs)
         return destination_port.id

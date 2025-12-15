@@ -19,7 +19,7 @@ class SubnetHandler(base.BaseMigrationHandler):
 
         These filters can be specified when initiating batch migrations.
         """
-        return ["owner_id"]
+        return ["project_id"]
 
     def get_associated_resource_types(self) -> list[str]:
         """Get a list of associated resource types.
@@ -35,6 +35,9 @@ class SubnetHandler(base.BaseMigrationHandler):
             raise exception.NotFound(f"Subnet not found: {resource_id}")
 
         associated_resources: list[base.Resource] = []
+        self._report_identity_dependencies(
+            associated_resources, project_id=source_subnet.project_id
+        )
         associated_resources.append(
             base.Resource(resource_type="network", source_id=source_subnet.network_id)
         )
@@ -98,6 +101,12 @@ class SubnetHandler(base.BaseMigrationHandler):
 
         kwargs["network_id"] = destination_network_id
 
+        identity_kwargs = self._get_identity_build_kwargs(
+            migrated_associated_resources,
+            source_project_id=source_subnet.project_id,
+        )
+        kwargs.update(identity_kwargs)
+
         # TODO: migrate subnet pools
         destination_subnet = self._destination_session.network.create_subnet(**kwargs)
         return destination_subnet.id
@@ -110,8 +119,8 @@ class SubnetHandler(base.BaseMigrationHandler):
         self._validate_resource_filters(resource_filters)
 
         query_filters = {}
-        if "owner" in resource_filters:
-            query_filters["project_id"] = resource_filters["owner_id"]
+        if "project_id" in resource_filters:
+            query_filters["project_id"] = resource_filters["project_id"]
 
         resource_ids = []
         for resource in self._source_session.network.subnets(**query_filters):

@@ -19,7 +19,7 @@ class SecurityGroupHandler(base.BaseMigrationHandler):
 
         These filters can be specified when initiating batch migrations.
         """
-        return ["owner_id"]
+        return ["project_id"]
 
     def get_associated_resource_types(self) -> list[str]:
         """Get a list of associated resource types.
@@ -29,8 +29,17 @@ class SecurityGroupHandler(base.BaseMigrationHandler):
         return []
 
     def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
-        """Security groups have no prerequisite resources."""
-        return []
+        """Return the source resources this security group depends on."""
+        source_sg = self._source_session.network.get_security_group(resource_id)
+        if not source_sg:
+            raise exception.NotFound(f"Security Group not found: {resource_id}")
+
+        associated_resources: list[base.Resource] = []
+        self._report_identity_dependencies(
+            associated_resources, project_id=source_sg.project_id
+        )
+
+        return associated_resources
 
     def get_member_resource_types(self) -> list[str]:
         """Get a list of member (contained) resource types.
@@ -78,6 +87,12 @@ class SecurityGroupHandler(base.BaseMigrationHandler):
             if value is not None:
                 kwargs[field] = value
 
+        identity_kwargs = self._get_identity_build_kwargs(
+            migrated_associated_resources,
+            source_project_id=source_sg.project_id,
+        )
+        kwargs.update(identity_kwargs)
+
         dest_sg = self._destination_session.network.create_security_group(**kwargs)
         return dest_sg.id
 
@@ -89,8 +104,8 @@ class SecurityGroupHandler(base.BaseMigrationHandler):
         self._validate_resource_filters(resource_filters)
 
         query_filters = {}
-        if "owner_id" in resource_filters:
-            query_filters["project_id"] = resource_filters["owner_id"]
+        if "project_id" in resource_filters:
+            query_filters["project_id"] = resource_filters["project_id"]
 
         source_security_groups = self._source_session.network.security_groups(
             **query_filters

@@ -21,7 +21,7 @@ class RouterHandler(base.BaseMigrationHandler):
 
     def get_supported_resource_filters(self) -> list[str]:
         """Get a list of supported resource filters."""
-        return ["owner_id"]
+        return ["project_id"]
 
     def get_associated_resource_types(self) -> list[str]:
         """Get a list of associated resource types.
@@ -37,6 +37,9 @@ class RouterHandler(base.BaseMigrationHandler):
             raise exception.NotFound(f"Router not found: {resource_id}")
 
         associated_resources: list[base.Resource] = []
+        self._report_identity_dependencies(
+            associated_resources, project_id=source_router.project_id
+        )
 
         external_gateway_info = (
             getattr(source_router, "external_gateway_info", None) or {}
@@ -145,6 +148,12 @@ class RouterHandler(base.BaseMigrationHandler):
         if new_external_gateway_info is not None:
             kwargs["external_gateway_info"] = new_external_gateway_info
 
+        identity_kwargs = self._get_identity_build_kwargs(
+            migrated_associated_resources,
+            source_project_id=source_router.project_id,
+        )
+        kwargs.update(identity_kwargs)
+
         destination_router = self._destination_session.network.create_router(**kwargs)
         return destination_router.id
 
@@ -182,8 +191,8 @@ class RouterHandler(base.BaseMigrationHandler):
         self._validate_resource_filters(resource_filters)
 
         query_filters = {}
-        if "owner" in resource_filters:
-            query_filters["project_id"] = resource_filters["owner"]
+        if "project_id" in resource_filters:
+            query_filters["project_id"] = resource_filters["project_id"]
 
         resource_ids = []
         for resource in self._source_session.network.routers(**query_filters):

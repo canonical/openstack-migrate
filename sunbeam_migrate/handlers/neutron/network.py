@@ -19,7 +19,7 @@ class NetworkHandler(base.BaseMigrationHandler):
 
         These filters can be specified when initiating batch migrations.
         """
-        return ["owner_id"]
+        return ["project_id"]
 
     def get_associated_resource_types(self) -> list[str]:
         """Get a list of associated resource types.
@@ -27,6 +27,19 @@ class NetworkHandler(base.BaseMigrationHandler):
         Associated resources must be migrated first.
         """
         return []
+
+    def get_associated_resources(self, resource_id: str) -> list[base.Resource]:
+        """Return the source resources this network depends on."""
+        source_network = self._source_session.network.get_network(resource_id)
+        if not source_network:
+            raise exception.NotFound(f"Network not found: {resource_id}")
+
+        associated_resources: list[base.Resource] = []
+        self._report_identity_dependencies(
+            associated_resources, project_id=source_network.project_id
+        )
+
+        return associated_resources
 
     def get_member_resource_types(self) -> list[str]:
         """Get a list of member (contained) resource types.
@@ -92,6 +105,12 @@ class NetworkHandler(base.BaseMigrationHandler):
         # TODO: add a setting called "preserve_segmentation_id" and default to False.
         # Otherwise we risk conflicts with other existing networks.
 
+        identity_kwargs = self._get_identity_build_kwargs(
+            migrated_associated_resources,
+            source_project_id=source_network.project_id,
+        )
+        kwargs.update(identity_kwargs)
+
         dest_network = self._destination_session.network.create_network(**kwargs)
 
         return dest_network.id
@@ -104,8 +123,8 @@ class NetworkHandler(base.BaseMigrationHandler):
         self._validate_resource_filters(resource_filters)
 
         query_filters = {}
-        if "owner_id" in resource_filters:
-            query_filters["owner"] = resource_filters["owner_id"]
+        if "project_id" in resource_filters:
+            query_filters["project_id"] = resource_filters["project_id"]
 
         resource_ids = []
         for resource in self._source_session.network.networks(**query_filters):
