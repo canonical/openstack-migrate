@@ -399,11 +399,11 @@ $ sunbeam-migrate show fd91c637-7b91-4fb6-9bd6-afb84c9d79a1
     * can be skipped completely or just the actual address
   * router IP
 * Attach floating ips to instance ports
-* Consider temporarily adding the admin user to Barbican/Manila migrated projects
-  and issue the requests using the given project
+* Consider temporarily adding the admin user to the owner project when migrating
+  Barbican/Manila/Nova resources and issue the requests using owner project scoped sessions
   * Barbican doesn't allow us to retrieve secrets owned by other projects
   * Manila is also affected, it ignores the "project_id" parameter
-    when creating shares.
+    when creating shares. Same applies to Nova instances.
   * This behavior can be configurable
 * Cross-tenant keypair migrations
   * The keypairs do not have an unique ID. Cross-tenant requests must include

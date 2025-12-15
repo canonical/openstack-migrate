@@ -75,7 +75,11 @@ def _create_test_instance(
 
 
 def _check_migrated_instance(
-    source_instance, destination_instance, source_session, destination_session
+    test_config,
+    source_instance,
+    destination_instance,
+    source_session,
+    destination_session,
 ):
     """Check that the migrated instance matches the source instance."""
     assert source_instance.name == destination_instance.name, "name mismatch"
@@ -84,7 +88,7 @@ def _check_migrated_instance(
     dest_flavor = destination_session.compute.find_flavor(source_instance.flavor.name)
     nova_utils.check_migrated_flavor(source_flavor, dest_flavor)
 
-    if source_instance.key_name:
+    if source_instance.key_name and not test_config.multitenant_mode:
         assert destination_instance.key_name == source_instance.key_name, (
             "keypair name mismatch"
         )
@@ -195,7 +199,11 @@ def test_migrate_instance_booted_from_image(
         )
 
     _check_migrated_instance(
-        instance, dest_instance, test_source_session, test_destination_session
+        test_config,
+        instance,
+        dest_instance,
+        test_source_session,
+        test_destination_session,
     )
 
 
@@ -331,5 +339,9 @@ def test_migrate_instance_booted_from_volume(
         )
 
     _check_migrated_instance(
-        instance, dest_instance, test_source_session, test_destination_session
+        test_config,
+        instance,
+        dest_instance,
+        test_source_session,
+        test_destination_session,
     )

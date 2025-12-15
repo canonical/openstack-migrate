@@ -199,6 +199,7 @@ class InstanceHandler(base.BaseMigrationHandler):
                     resource_type="image",
                     resource_id=source_image.id,
                     cleanup_source=True,
+                    include_dependencies=True,
                 )
                 destination_image_id = image_migration.destination_id
             except Exception as ex:
@@ -334,9 +335,10 @@ class InstanceHandler(base.BaseMigrationHandler):
         """Return all source instance ids."""
         self._validate_resource_filters(resource_filters)
 
-        query_filters = {}
+        query_filters: dict[str, Any] = {}
         if "project_id" in resource_filters:
             query_filters["project_id"] = resource_filters["project_id"]
+            query_filters["all_tenants"] = True
 
         resource_ids: list[str] = []
         for instance in self._source_session.compute.servers(**query_filters):

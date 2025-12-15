@@ -235,9 +235,10 @@ class VolumeHandler(base.BaseMigrationHandler):
         """
         self._validate_resource_filters(resource_filters)
 
-        query_filters = {}
+        query_filters: dict[str, Any] = {}
         if "project_id" in resource_filters:
             query_filters["project_id"] = resource_filters["project_id"]
+            query_filters["all_tenants"] = True
 
         resource_ids = []
         for volume in self._source_session.block_storage.volumes(**query_filters):
