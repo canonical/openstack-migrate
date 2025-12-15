@@ -1,10 +1,13 @@
 # SPDX-FileCopyrightText: 2025 - Canonical Ltd
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
+
 from sunbeam_migrate import config, exception
 from sunbeam_migrate.handlers import base
 
 CONF = config.get_config()
+LOG = logging.getLogger()
 
 
 class SecurityGroupHandler(base.BaseMigrationHandler):
@@ -83,6 +86,19 @@ class SecurityGroupHandler(base.BaseMigrationHandler):
         if not source_sg:
             raise exception.NotFound(f"Security Group not found: {resource_id}")
 
+        identity_kwargs = self._get_identity_build_kwargs(
+            migrated_associated_resources,
+            source_project_id=source_sg.project_id,
+        )
+
+        if source_sg.name == "default":
+            destination_sg = self._destination_session.network.find_security_group(
+                "default", **identity_kwargs
+            )
+            if destination_sg:
+                LOG.info("Skipped recreating default security group.")
+                return destination_sg.id
+
         fields = ["description", "name", "stateful"]
         kwargs = {}
         for field in fields:
@@ -90,10 +106,6 @@ class SecurityGroupHandler(base.BaseMigrationHandler):
             if value is not None:
                 kwargs[field] = value
 
-        identity_kwargs = self._get_identity_build_kwargs(
-            migrated_associated_resources,
-            source_project_id=source_sg.project_id,
-        )
         kwargs.update(identity_kwargs)
 
         dest_sg = self._destination_session.network.create_security_group(**kwargs)

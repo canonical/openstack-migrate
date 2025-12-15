@@ -62,10 +62,6 @@ class PortHandler(base.BaseMigrationHandler):
         # Add security groups as associated resources
         security_group_ids = source_port.security_group_ids or []
         for sg_id in security_group_ids:
-            source_sg = self._source_session.network.get_security_group(sg_id)
-            if source_sg.name == "default":
-                LOG.info("Skipping default security group rule.")
-                continue
             associated_resources.append(
                 base.Resource(resource_type="security-group", source_id=sg_id)
             )
@@ -128,9 +124,6 @@ class PortHandler(base.BaseMigrationHandler):
         # Map security group IDs from source to destination
         destination_security_group_ids = []
         for sg_id in source_port.security_group_ids:
-            source_sg = self._source_session.network.get_security_group(sg_id)
-            if source_sg.name == "default":
-                continue
             dest_sg_id = self._get_associated_resource_destination_id(
                 "security-group",
                 sg_id,
