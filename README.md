@@ -385,12 +385,6 @@ $ sunbeam-migrate show fd91c637-7b91-4fb6-9bd6-afb84c9d79a1
   the migration status for the specified plan.
   The resource dependencies could be modeled through a tree.
 * Propagate the dry run to linked resources.
-* Consider adding an option specifying whether to identify existing destination resources
-  by name, skipping those that already exist.
-  * the user should be able to control the resource types that are identified by name, e.g.
-    * identify_destination_resources_by_name = ["keypair", "network", "subnet"]
-  * some resouces may not have a name or there may be multiple resources having the same name,
-    which is why this should be configurable.
 * Allow skipping properties that may cause conflicts on the destination cloud:
   * net segmentation id
   * mac addresses
@@ -399,13 +393,7 @@ $ sunbeam-migrate show fd91c637-7b91-4fb6-9bd6-afb84c9d79a1
     * can be skipped completely or just the actual address
   * router IP
 * Attach floating ips to instance ports
-* Consider temporarily adding the admin user to the owner project when migrating
-  Barbican/Manila/Nova/Cinder resources and issue the requests using owner project scoped sessions
-  * Barbican doesn't allow us to retrieve secrets owned by other projects
-  * Manila is also affected, it ignores the "project_id" parameter
-    when creating shares. Same applies to Nova instances.
-  * This behavior can be configurable
-* Cross-tenant keypair migrations
+* Cross-tenant keypair and secret migrations
   * The keypairs do not have an unique ID. Cross-tenant requests must include
     the keypair name and the project/user ID, even get/list.
   * We'd need to include the owner information along with the resource id in:
@@ -413,6 +401,8 @@ $ sunbeam-migrate show fd91c637-7b91-4fb6-9bd6-afb84c9d79a1
     * `perform_individual_migration`
     * `get_associated_resources`
     * The migration `start` command
+  * We have a similar situation with Barbican secrets and secret containers,
+    where we aren't normally allowed to retrieve secrets owned by other projects.
 
 ## Functional tests
 

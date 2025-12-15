@@ -84,12 +84,23 @@ class ShareHandler(base.BaseMigrationHandler):
                 "NFS is the only supported share protocol at the moment."
             )
 
-        # TODO: Manila ignores the project_id parameter, we'll need to
-        # impersonate the destination user (e.g. using application credentials).
+        identity_kwargs = self._get_identity_build_kwargs(
+            migrated_associated_resources,
+            source_project_id=source_share.project_id,
+        )
+        if CONF.multitenant_mode:
+            owner_destination_session = self._owner_scoped_session(
+                self._destination_session,
+                [CONF.member_role_name],
+                identity_kwargs["project_id"],
+            )
+        else:
+            owner_destination_session = self._destination_session
+
         share_kwargs = self._build_share_kwargs(
             source_share, migrated_associated_resources
         )
-        destination_share = self._destination_session.shared_file_system.create_share(
+        destination_share = owner_destination_session.shared_file_system.create_share(
             **share_kwargs
         )
 
@@ -125,12 +136,6 @@ class ShareHandler(base.BaseMigrationHandler):
             value = getattr(source_share, field, None)
             if value not in (None, {}):
                 kwargs[field] = value
-
-        identity_kwargs = self._get_identity_build_kwargs(
-            migrated_associated_resources,
-            source_project_id=source_share.project_id,
-        )
-        kwargs.update(identity_kwargs)
 
         if source_share.share_type and CONF.preserve_share_type:
             destination_share_type_id = self._get_associated_resource_destination_id(

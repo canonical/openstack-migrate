@@ -66,13 +66,17 @@ def test_migrate_share_with_cleanup(
         ],
     )
 
-    # TODO: ensure that the owner is preserved in multi-tenant mode.
     dest_share_id = test_utils.get_destination_resource_id(
         test_config_path, "share", share.id
     )
     request.addfinalizer(
         lambda: manila_test_utils.delete_share(test_destination_session, dest_share_id)
     )
+
+    dest_share = test_destination_session.shared_file_system.find_share(share.name)
+    assert dest_share, "share not visible to destination owner"
+
+    # Refresh share information.
     dest_share = test_destination_session.shared_file_system.get_share(dest_share_id)
 
     manila_test_utils.check_migrated_share(share, dest_share)
