@@ -37,6 +37,7 @@ def test_migrate_router_and_cleanup(
         [
             "start-batch",
             "--resource-type=router",
+            "--include-dependencies",
             "--cleanup-source",
             "--filter",
             f"project-id:{test_owner_source_project.id}",

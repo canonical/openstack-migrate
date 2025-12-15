@@ -51,6 +51,7 @@ def test_migrate_security_group(
         [
             "start-batch",
             "--resource-type=security-group",
+            "--include-dependencies",
             "--filter",
             f"project-id:{test_owner_source_project.id}",
         ],
@@ -92,6 +93,7 @@ def test_migrate_security_group_and_cleanup(
         [
             "start-batch",
             "--resource-type=security-group",
+            "--include-dependencies",
             "--cleanup-source",
             "--filter",
             f"project-id:{test_owner_source_project.id}",
@@ -134,6 +136,7 @@ def test_migrate_security_group_with_members(
         [
             "start-batch",
             "--resource-type=security-group",
+            "--include-dependencies",
             "--include-members",
             "--filter",
             f"project-id:{test_owner_source_project.id}",

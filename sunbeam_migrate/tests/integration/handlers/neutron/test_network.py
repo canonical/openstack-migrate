@@ -70,6 +70,7 @@ def test_migrate_network_and_cleanup(
         [
             "start-batch",
             "--resource-type=network",
+            "--include-dependencies",
             "--cleanup-source",
             "--filter",
             f"project-id:{test_owner_source_project.id}",
@@ -108,6 +109,7 @@ def test_migrate_network_with_members(
         [
             "start-batch",
             "--resource-type=network",
+            "--include-dependencies",
             "--include-members",
             "--filter",
             f"project-id:{test_owner_source_project.id}",
