@@ -57,7 +57,7 @@ def base_destination_session(base_config):
 @pytest.fixture(scope="module")
 def test_owner_project_name() -> str:
     # The project owning the migrated resources.
-    return test_utils.get_test_resource_name()
+    return test_utils.get_test_resource_name() + "-owner"
 
 
 @pytest.fixture(scope="module")
@@ -444,11 +444,13 @@ def test_owner_source_session(
 
 @pytest.fixture(scope="module")
 def test_requester_source_session(
-    base_config,
+    test_config,
+    test_requester_cloud_config,
+    test_requester_cloud_config_path,
     test_owner_cloud_config_path,
 ):
     return test_utils.get_openstack_session(
-        test_requester_cloud_config_path, base_config.source_cloud_name
+        test_requester_cloud_config_path, test_config.source_cloud_name
     )
 
 
