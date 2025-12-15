@@ -25,7 +25,9 @@ def test_migrate_keypair_with_cleanup(
     test_requester_destination_session,
 ):
     keypair = nova_utils.create_test_keypair(test_requester_source_session)
-    request.addfinalizer(lambda: _delete_keypair(test_requester_source_session, keypair.id))
+    request.addfinalizer(
+        lambda: _delete_keypair(test_requester_source_session, keypair.id)
+    )
 
     test_utils.call_migrate(
         test_config_path,
@@ -68,7 +70,9 @@ def test_migrate_keypair_skips_existing_destination(
         name=shared_name,
     )
     request.addfinalizer(
-        lambda: _delete_keypair(test_requester_destination_session, destination_keypair.id)
+        lambda: _delete_keypair(
+            test_requester_destination_session, destination_keypair.id
+        )
     )
 
     test_utils.call_migrate(

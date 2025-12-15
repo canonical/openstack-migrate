@@ -75,13 +75,16 @@ class InstanceHandler(base.BaseMigrationHandler):
         )
 
         # Keypair
-        if source_instance.key_name:
-            keypair = self._source_session.compute.find_keypair(
-                source_instance.key_name, ignore_missing=False
-            )
-            associated_resources.append(
-                base.Resource(resource_type="keypair", source_id=keypair.id)
-            )
+        if CONF.multitenant_mode:
+            LOG.warning("Keypair migration is not supported in multi-tenant mode.")
+        else:
+            if source_instance.key_name:
+                keypair = self._source_session.compute.find_keypair(
+                    source_instance.key_name, ignore_missing=False
+                )
+                associated_resources.append(
+                    base.Resource(resource_type="keypair", source_id=keypair.id)
+                )
 
         # Image
         #
@@ -270,7 +273,7 @@ class InstanceHandler(base.BaseMigrationHandler):
         kwargs["flavor_id"] = dest_flavor_id
 
         # Keypair
-        if source_instance.key_name:
+        if source_instance.key_name and not CONF.multitenant_mode:
             dest_keypair_id = self._get_associated_resource_destination_id(
                 "keypair",
                 source_instance.key_name,  # Keypairs use name as ID
