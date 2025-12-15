@@ -68,6 +68,14 @@ class SunbeamMigrateConfig(BaseModel):
     # automatically.
     manila_local_access_ip: str | None = None
 
+    # The name of the "member" Keystone role. When migrating certain resources
+    # to other tenants (e.g. instances, volumes, shares), we need to a project
+    # scoped session using the destination project.
+    #
+    # sunbeam-migrate will transparently assign the member role to the user
+    # that initiated the migration.
+    member_role_name = "member"
+
     def load_config(self, path: Path):
         """Load the configuration from the specified file."""
         with path.open() as f:

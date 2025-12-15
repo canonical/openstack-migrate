@@ -400,7 +400,7 @@ $ sunbeam-migrate show fd91c637-7b91-4fb6-9bd6-afb84c9d79a1
   * router IP
 * Attach floating ips to instance ports
 * Consider temporarily adding the admin user to the owner project when migrating
-  Barbican/Manila/Nova resources and issue the requests using owner project scoped sessions
+  Barbican/Manila/Nova/Cinder resources and issue the requests using owner project scoped sessions
   * Barbican doesn't allow us to retrieve secrets owned by other projects
   * Manila is also affected, it ignores the "project_id" parameter
     when creating shares. Same applies to Nova instances.

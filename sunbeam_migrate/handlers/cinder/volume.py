@@ -142,14 +142,34 @@ class VolumeHandler(base.BaseMigrationHandler):
         destination_image_id: str | None = None
         try:
             image_migration = self.manager.perform_individual_migration(
-                resource_type="image", resource_id=source_image.id, cleanup_source=True
+                resource_type="image",
+                resource_id=source_image.id,
+                cleanup_source=True,
+                include_dependencies=True,
             )
             destination_image_id = image_migration.destination_id
 
             volume_kwargs = self._build_volume_kwargs(
                 source_volume, destination_image_id, migrated_associated_resources
             )
-            destination_volume = self._destination_session.block_storage.create_volume(
+
+            identity_kwargs = self._get_identity_build_kwargs(
+                migrated_associated_resources,
+                source_project_id=source_volume.project_id,
+                source_user_id=source_volume.user_id,
+            )
+            if CONF.multitenant_mode:
+                remote_project_id = identity_kwargs["project_id"]
+                self._assign_project_role_to_current_use(
+                    self._destination_session, CONF.member_role_name, remote_project_id
+                )
+                destination_session = self._destination_session.connect_as_project(
+                    remote_project_id
+                )
+            else:
+                destination_session = self._destination_session
+
+            destination_volume = destination_session.block_storage.create_volume(
                 **volume_kwargs
             )
             LOG.info("Waiting for volume provisioning: %s", destination_volume.id)
@@ -218,13 +238,6 @@ class VolumeHandler(base.BaseMigrationHandler):
             kwargs["volume_type"] = destination_volume_type_id
         if image_id:
             kwargs["image_id"] = image_id
-
-        identity_kwargs = self._get_identity_build_kwargs(
-            migrated_associated_resources,
-            source_project_id=source_volume.project_id,
-            source_user_id=source_volume.user_id,
-        )
-        kwargs.update(identity_kwargs)
 
         return kwargs
 
