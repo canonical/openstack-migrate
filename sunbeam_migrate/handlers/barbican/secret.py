@@ -84,7 +84,8 @@ class SecretHandler(base.BaseMigrationHandler):
         self._validate_resource_filters(resource_filters)
 
         # Not even admins are allowed to retrieve secrets owned by other users,
-        # as such multi-tenant mode is not supported.
+        # as such multi-tenant mode is not supported at the moment. See the
+        # "Potential future improvements" section of the README for more details.
         resource_ids = []
         for resource in self._source_session.key_manager.secrets():
             resource_ids.append(resource.id)
