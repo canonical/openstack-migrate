@@ -2,7 +2,7 @@ Installation
 ------------
 
 ``sunbeam-migrate`` is a tool written entirely in Python, as such we
-are going to install it in a virtual env.
+are going to install it in a Python virtual environment.
 
 .. code-block:: shell
 

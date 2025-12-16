@@ -40,7 +40,7 @@ projects.
 
 Note that the multi-tenant mode requires admin privileges.
 
-Next, we are going to specify the Openstack credentials using a standard
+Next we are going to specify the Openstack credentials using a standard
 `clouds yaml`_ file:
 
 .. code-block:: bash
@@ -94,7 +94,8 @@ Glance images.
 			test-image-$idx < /tmp/test-image
 	done
 
-We can now move one of those images using the following command:
+We can now move one of those images using the following command. Make sure to
+specify the correct image ID.
 
 .. code-block:: none
 
@@ -128,9 +129,9 @@ to be migrated.
 
 "Members" are contained resources that are migrated *after* the parent resource.
 These resources are optional and can be migrated using ``--include-members``.
-For example, subnets are members of networks. 
+For example, subnets are members of networks.
 
-Member resources can also be migrated separately, after the parent resource was
+Member resources may also be migrated separately, after the parent resource was
 migrated.
 
 Getting back to our example, you may have noticed the ``--cleanup-source`` flag.
@@ -138,8 +139,9 @@ If set, the resource(s) are automatically removed from the source cloud if the
 migration succeeds. This does not apply to shared dependencies, such as volume
 types or flavors.
 
-The resources can also be cleaned up using the ``sunbeam-migrate cleanup-source``
-command, which we are going to try a bit later.
+Users may choose to cleanup the resources separately through the
+``sunbeam-migrate cleanup-source`` command, which we are going to showcase
+:ref:`a bit later<cleanup_source_command>`.
 
 Batch migrations
 ----------------
@@ -252,6 +254,8 @@ a given migration like so:
 
 Cleaning up migrations
 ----------------------
+
+.. _cleanup_source_command:
 
 Migrated resources are removed from the source cloud automatically if the
 ``--cleanup-source`` flag is specified.
