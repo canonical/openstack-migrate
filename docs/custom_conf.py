@@ -79,7 +79,10 @@ html_context = {
     # Add your product tag (the orange part of your logo, will be used in the
     # header) to ".sphinx/_static" and change the path here (start with "_static")
     # (default is the circle of friends)
-    'product_tag': '_static/tag.png',
+    # 'product_tag': '_static/tag.png',
+    # TODO: for some reason, readthedocs doesn't serve tag.png correctly.
+    # We'll skip it for now.
+    'product_tag': '',
 
     # Change to the discourse instance you want to be able to link to
     # using the :discourse: metadata at the top of a file
