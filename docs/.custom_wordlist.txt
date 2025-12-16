@@ -168,6 +168,8 @@ initiator
 intra
 isolCPUs
 juju
+keypair
+keypairs
 kube
 kubeconfig
 kubectl

@@ -8,3 +8,4 @@ Index
    :maxdepth: 1
 
    architecture
+   multitenant-mode
