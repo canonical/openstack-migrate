@@ -15,5 +15,5 @@
 
 .. _Multipass: https://multipass.run
 
-
 .. _clouds yaml: https://docs.openstack.org/python-openstackclient/latest/configuration/index.html#clouds-yaml
+.. _OpenStack SDK: https://docs.openstack.org/openstacksdk/latest/
