@@ -229,7 +229,7 @@ a given migration like so:
 
 .. code-block:: none
 
-	$ sunbeam-migrate show 0209b968-10ae-4770-ac6e-6c454fb4323f
+	sunbeam-migrate show 0209b968-10ae-4770-ac6e-6c454fb4323f
 
 	+----------------------------------------------------------+
 	|                        Migration                         |
@@ -267,7 +267,7 @@ Use the ``cleanup-source`` command like so:
 
 .. code-block:: none
 
-	$ sunbeam-migrate cleanup-source --resource-type=image
+	sunbeam-migrate cleanup-source --resource-type=image
 
 	2025-12-16 14:33:32,897 INFO Migration succeeded, cleaning up source image: 5f7f24cc-b700-4195-80af-50e61adff91d
 	2025-12-16 14:33:34,575 INFO Migration succeeded, cleaning up source image: 19da365c-ddb4-432c-92f2-60b966d347fe
@@ -279,7 +279,7 @@ that it also allows filtering by resource id or service type.
 
 .. code-block:: none
 
-	$ sunbeam-migrate cleanup-source -h
+	sunbeam-migrate cleanup-source -h
 
 	Usage: sunbeam-migrate cleanup-source [OPTIONS]
 
@@ -299,11 +299,11 @@ Migration handlers
 ------------------
 
 Run the following command to see the list of migration handlers and how they
-define resource relations: 
+define resource relations:
 
 .. code-block:: none
 
-	$ sunbeam-migrate capabilities
+	sunbeam-migrate capabilities
 
 	+------------------------------------------------------------------------------------------------------------------------------------------+
 	|                                                            Migration handlers                                                            |
