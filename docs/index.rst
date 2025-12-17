@@ -1,16 +1,17 @@
 .. _home:
 
 Sunbeam Migrate documentation
-==================================
+=============================
 
-`Canonical OpenStack <https://canonical.com/openstack>`_ is an enterprise-grade
-cloud platform that delivers distilled upstream OpenStack excellence in the
-form of a human-friendly product.
+``sunbeam-migrate`` facilitates the migration from Charmed Openstack to
+`Canonical OpenStack <https://canonical.com/openstack>`_ (Sunbeam).
 
-``sunbeam-migrate`` facilitates the migration from Charmed Openstack to Canonical
-Openstack (Sunbeam). The tool is designed with simplicity and versatility in mind,
-relying only on public OpenStack APIs. As such, it can migrate between different
-OpenStack distributions, even different releases.
+The tool is designed with simplicity and versatility in mind, relying only on
+public OpenStack APIs. As such, it can migrate between different OpenStack
+distributions and even different releases.
+
+It models resource hierarchies and ownership, which are automatically
+handled during the migration process.
 
 ---------
 
