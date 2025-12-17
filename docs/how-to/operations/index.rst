@@ -8,3 +8,4 @@ Operations
    initiate-migration
    cleanup
    list
+   external-migrations
