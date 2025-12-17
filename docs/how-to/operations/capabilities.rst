@@ -1,5 +1,3 @@
-.. _capabilities_ref:
-
 Migration handler capabilities
 ------------------------------
 

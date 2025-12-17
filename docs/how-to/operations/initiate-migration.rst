@@ -1,7 +1,7 @@
 Initiating migrations
 =====================
 
-Make sure to properly configure ``sunbeam-migrate`` before intiating resource
+Make sure to properly configure ``sunbeam-migrate`` before initiating resource
 migrations. See the :ref:`tutorial <getting_started_ref>` and the
 :ref:`configuration reference <config_ref>` to get started.
 
@@ -70,7 +70,7 @@ The ``--resource-type`` parameter is mandatory.
 
 ``--all`` will migrate all the resources belonging to the specified project.
 
-Use the :ref:`capabilities <capabilities_ref>` command to see the list of
+Use the :doc:`capabilities <./capabilities>` command to see the list of
 filters supported by each migration handler.
 
 It's usually a good idea to do a dry run first using the ``--dry-run`` flag
