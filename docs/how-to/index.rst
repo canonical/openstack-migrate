@@ -22,7 +22,7 @@ Migration handlers
 ------------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    migration-handlers/index
 
