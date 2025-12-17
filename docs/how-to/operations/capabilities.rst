@@ -1,5 +1,5 @@
-Migration handler capabilities
-------------------------------
+Retrieving migration handler capabilities
+-----------------------------------------
 
 Run the following command to see the list of migration handlers, how they
 define resource relations and which batch migration filters they accept:
