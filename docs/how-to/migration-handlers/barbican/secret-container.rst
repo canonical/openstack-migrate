@@ -1,13 +1,24 @@
 Migrating secret containers
 ===========================
 
-This example creates and migrates a certificate secret container along
-with the referenced secrets.
+This example creates and migrates a secret container along with the referenced
+secrets.
 
 .. code-block:: bash
 
-  cert_ref=`openstack secret store --name root-ca-cert -s certificate --file ~/ca/rootca.crt | grep "Secret href" | awk '{print $5}'`
-  key_ref=`openstack secret store --name root-ca-key -s private --file ~/ca/rootca.key | grep "Secret href" | awk '{print $5}'`
+  cert_ref=`openstack secret store \
+    --name root-ca-cert \
+    -s certificate \
+    --file ~/ca/rootca.crt \
+      | grep "Secret href" \
+      | awk '{print $5}'`
+
+  key_ref=`openstack secret store \
+    --name root-ca-key \
+    -s private \
+    --file ~/ca/rootca.key \
+      | grep "Secret href" \
+      | awk '{print $5}'`
 
   openstack secret container create \
     --name root-ca \
@@ -36,8 +47,8 @@ project.
 
 ``--include-dependencies`` was needed since the secrets are dependent resources
 that must exist before the secret container gets created, which only holds
-secret references. Furthermore, ``--include-dependencies`` should be passed
-in multi-tenant mode to automatically migrate Keystone resources.
+secret references. Furthermore, this flag should be passed in multi-tenant
+mode to automatically migrate Keystone resources.
 
 Resulting resources:
 
