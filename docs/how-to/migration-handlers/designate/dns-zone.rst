@@ -1,8 +1,8 @@
 Migrating DNS zones and records
 -------------------------------
 
-Designate zones can be migrated with `--resource-type=dns-zone`. The handler
-recreates the DNS zone with all of its recordsets on the destination.
+Designate zones can be migrated with ``--resource-type=dns-zone``. The handler
+recreates the DNS zone with all of its record sets on the destination.
 
 .. note::
 
