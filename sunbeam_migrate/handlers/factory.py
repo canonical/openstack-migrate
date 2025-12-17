@@ -13,6 +13,8 @@ MIGRATION_HANDLERS = {
     # Cinder handles
     "volume": "sunbeam_migrate.handlers.cinder.volume.VolumeHandler",
     "volume-type": "sunbeam_migrate.handlers.cinder.volume_type.VolumeTypeHandler",
+    # Designate handlers
+    "dns-zone": "sunbeam_migrate.handlers.designate.zone.ZoneHandler",
     # Glance handlers
     "image": "sunbeam_migrate.handlers.glance.image.ImageHandler",
     # Keystone handlers
