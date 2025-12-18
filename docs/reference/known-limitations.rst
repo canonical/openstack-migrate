@@ -85,4 +85,7 @@ consideration was given to backwards compatibility, especially with the
 introduction of :ref:`microversions`.
 
 ``sunbeam-migrate`` is expected to work with any Openstack release starting
-Openstack Zed.
+with Openstack Zed.
+
+Note however that most of the testing was performed using Openstack 2024.1
+(Caracal) and 2025.1 (Epoxy).
