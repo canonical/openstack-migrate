@@ -42,7 +42,7 @@ The user can configure whether ``sunbeam-migrate`` should preserve the following
 * network segmentation IDs
 * volume type
 
-..note::
+.. note::
 
   If the desired networks and subnets have been manually recreated on the
   destination side, make sure to import them in ``sunbeam-migrate`` using
@@ -51,7 +51,7 @@ The user can configure whether ``sunbeam-migrate`` should preserve the following
 Example
 -------
 
-.. code-block::
+.. code-block:: none
 
   sunbeam-migrate start \
     --resource-type=instance \

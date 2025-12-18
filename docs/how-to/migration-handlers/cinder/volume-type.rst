@@ -9,7 +9,7 @@ These can be migrated individually or as associated resources of Cinder volumes.
 Mismatching volume types
 ------------------------
 
-The source volume type specification may not apply to the destination cloud.
+The source volume type specifications may not be applicable to the destination cloud.
 
 If ``preserve_volume_type`` is disabled, ``sunbeam-migrate`` will skip migrating
 the volume type and use the default volume type instead.

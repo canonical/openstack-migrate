@@ -1,6 +1,9 @@
 Migrating volumes
 =================
 
+``sunbeam-migrate`` can be used to migrate Cinder volumes along with
+the corresponding volume types.
+
 In order to access the volume data, ``sunbeam-migrate`` temporarily uploads
 them to Glance.
 
@@ -34,13 +37,13 @@ Here are a few other approaches that have been considered.
 
 * In-place migration
 
-  * Both clouds use the same external storage backend
+  * Both clouds use the same external storage backend.
   * It's a matter of importing the volume on the destination cloud.
 
 Volume types
 ------------
 
-The source volume type specification may not apply to the destination cloud.
+The source volume type specifications may not be applicable to the destination cloud.
 
 If ``preserve_volume_type`` is disabled, ``sunbeam-migrate`` will skip migrating
 the volume type and use the default volume type instead.

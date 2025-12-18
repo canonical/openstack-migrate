@@ -19,7 +19,7 @@ will be skipped and the destination flavor ID will be recorded in the
 Example
 -------
 
-.. code-block::
+.. code-block:: none
 
   sunbeam-migrate start \
     --resource-type=flavor \

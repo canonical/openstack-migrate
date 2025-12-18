@@ -9,7 +9,7 @@ These can be migrated individually or as associated resources of Manila shares.
 Mismatching share types
 ------------------------
 
-The source share type specification may not apply to the destination cloud.
+The source share type specifications may not be applicable to the destination cloud.
 
 If ``preserve_share_type`` is disabled, ``sunbeam-migrate`` will skip migrating
 the share type and use the default type instead.

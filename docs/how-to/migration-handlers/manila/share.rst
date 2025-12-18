@@ -1,13 +1,13 @@
 Migrating Manila shares
 =======================
 
-``sunbeam-migrate`` can be used to migrate Manila shares along with the user
-data.
+``sunbeam-migrate`` can be used to migrate Manila shares along with
+the share types the user data.
 
 Share types
 -----------
 
-The source share type specification may not apply to the destination cloud.
+The source share type specifications may not be applicable to the destination cloud.
 
 If ``preserve_share_type`` is disabled, ``sunbeam-migrate`` will skip migrating
 the share type and use the default type instead.

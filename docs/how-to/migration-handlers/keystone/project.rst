@@ -2,15 +2,13 @@ Migrating projects
 ==================
 
 Project migrations will include the corresponding Keystone domain.
-
 If ``--include-members`` is provided, associated users will be migrated as
 well.
 
 In :doc:`multi-tenant mode<../../../explanation/multitenant-mode>`,
 identity resources will be migrated as dependencies of other Openstack resources
-(e.g. instances, volumes, networks, etc).
-
-A project may also be moved as a Keystone user dependency.
+(e.g. instances, volumes, networks, etc). A project may also be moved as a
+Keystone user dependency.
 
 Example
 -------
