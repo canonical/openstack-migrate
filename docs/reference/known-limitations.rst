@@ -44,7 +44,8 @@ in order to ensure the consistency of the snapshot. See the `Nova quiesce spec`_
 for more details.
 
 If the guest VM does not support this mechanism, consider stopping the instance
-before initiating a migration.
+before initiating a migration or using ``fsfreeze`` manually. The same applies if
+the instance has volumes attached.
 
 At the same time, ``sunbeam-migrate`` will pass the ``Force`` flag when uploading
 volumes to Glance. This is required in order to allow attached volumes to be
