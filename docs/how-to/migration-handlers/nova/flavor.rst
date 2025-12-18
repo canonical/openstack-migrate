@@ -9,7 +9,7 @@ Flavors can be migrated individually or as Nova instance
 
 If the flavor properties are not applicable on the destination cloud,
 users may choose to recreate it manually and then
-:doc:`register the external migration <../../operations/external-migrations.rst>`
+:doc:`register the external migration <../../operations/external-migrations>`
 in ``sunbeam-migrate``.
 
 Note that if the flavor already exists on the destination side, the migration

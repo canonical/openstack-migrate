@@ -39,7 +39,8 @@ Example
 
 The following command migrates a share and removes it from the source cloud:
 
-.. code-block::
+.. code-block:: none
+
   sunbeam-migrate start \
     --include-dependencies \
     --resource-type=volume \

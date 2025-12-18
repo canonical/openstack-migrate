@@ -30,4 +30,4 @@ The following example migrates a share type:
     fb65ae1f-45a9-400d-b935-f1c9412533b5
 
   2025-12-18 13:36:25,209 INFO Initiating share-type migration, resource id: fb65ae1f-45a9-400d-b935-f1c9412533b5
-2025-12-18 13:36:27,808 INFO Successfully migrated share-type resource, destination id: c555d880-5bff-471f-b7f8-e17a0a6e4a5f
+  2025-12-18 13:36:27,808 INFO Successfully migrated share-type resource, destination id: c555d880-5bff-471f-b7f8-e17a0a6e4a5f

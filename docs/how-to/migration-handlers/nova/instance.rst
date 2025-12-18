@@ -5,15 +5,22 @@ Migrating instances
 such as:
 
 * network resources
+
   * networks
   * subnets
   * ports
+
     * security groups
+
       * security group rules
+
 * storage resources
+
   * instance root disk
   * Cinder volumes
+
 * Nova specific resources
+
   * flavors
   * keypairs (if ``multi-tenant`` mode is disabled)
 
@@ -25,7 +32,7 @@ Glance images.
 
 Note that instance ports are created using the Neutron API in order to preserve
 certain properties that are not exposed by Nova (e.g. port MAC address or
-VNIC type). However, this means that Nova will not delete these ports when
+vNIC type). However, this means that Nova will not delete these ports when
 the instance is destroyed.
 
 The user can configure whether ``sunbeam-migrate`` should preserve the following:

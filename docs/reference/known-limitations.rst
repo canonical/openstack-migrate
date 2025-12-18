@@ -82,7 +82,7 @@ Load balancer limitations
 HTTP load balancers cannot be used with Sunbeam at the time of writing since it
 relies on the OVN backend and cannot leverage Octavia "amphora" instances.
 
-This isn't a limitation of the migration tool per se, but something to be aware
+This isn't a limitation of the migration tool itself, but something to be aware
 of when migrating to Sunbeam.
 
 Openstack releases
@@ -90,7 +90,7 @@ Openstack releases
 
 The Openstack APIs have stabilized over the past few years and special
 consideration was given to backwards compatibility, especially with the
-introduction of :ref:`microversions`.
+introduction of `microversions`_.
 
 ``sunbeam-migrate`` is expected to work with any Openstack release starting
 with Openstack Zed.

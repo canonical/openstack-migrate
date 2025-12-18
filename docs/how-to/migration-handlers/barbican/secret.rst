@@ -11,8 +11,10 @@ To migrate these resources, consider using a separate ``sunbeam-migrate`` config
 and database for each individual tenant. The admin user user can be temporarily
 added as a member of the migrated projects.
 
-.. note:: When initiating a secret container migration, the corresponding secrets
-will be migrated automatically.
+.. note::
+
+  When initiating a secret container migration, the corresponding secrets
+  will be migrated automatically.
 
 Example
 -------
