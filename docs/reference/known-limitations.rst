@@ -52,6 +52,14 @@ volumes to Glance. This is required in order to allow attached volumes to be
 uploaded. Most Cinder volume drivers support this but if your backend does not
 allow it, consider temporarily detaching the migrated volumes.
 
+Instance ports
+--------------
+
+Instance ports are created using the Neutron API in order to preserve
+certain properties that are not exposed by Nova (e.g. port MAC address or
+VNIC type). However, this means that Nova will not delete these ports when
+the instance is destroyed.
+
 Glance uploads
 --------------
 
