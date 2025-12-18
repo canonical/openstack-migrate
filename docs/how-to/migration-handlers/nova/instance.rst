@@ -1,5 +1,5 @@
 Migrating instances
--------------------
+===================
 
 ``sunbeam-migrate`` can transfer Nova instances along with associated resources
 such as:

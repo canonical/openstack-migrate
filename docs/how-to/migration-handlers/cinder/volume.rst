@@ -13,11 +13,11 @@ Alternative approaches
 
 Here are a few other approaches that have been considered.
 
-1. Using the Cinder migration API.
+* Using the Cinder migration API.
 
   * The backends must be part of the same Openstack cloud.
 
-2. The "os-brick" library.
+* The "os-brick" library.
 
   * The "os-brick" library can be used to connect the source and destination
     volumes locally, allowing the payload to be copied over (e.g. using ``dd``).
@@ -25,14 +25,14 @@ Here are a few other approaches that have been considered.
   * May require additional packages and configuration (e.g. iSCSI initiator,
     Ceph client, etc).
 
-3. Through backend specific mechanisms.
+* Through backend specific mechanisms.
 
   * Ceph RBD allows live migrating images between clusters.
   * Both storage backends must be accessible.
   * Requires additional packages and configuration.
   * Must use the same backend type and version.
 
-4. In-place migration
+* In-place migration
 
   * Both clouds use the same external storage backend
   * It's a matter of importing the volume on the destination cloud.

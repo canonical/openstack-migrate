@@ -1,5 +1,5 @@
 Migrating flavors
------------------
+=================
 
 Nova flavors determine the amount of allocated resources and other
 characteristics of Nova instances.
