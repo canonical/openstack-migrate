@@ -18,6 +18,10 @@ moment. This would require extending ``sunbeam-migrate`` to receive the owner
 project id along with the resource ID and use project scoped sessions, basically
 impersonating the owner of those resources.
 
+To migrate these resources, consider using a separate ``sunbeam-migrate`` config
+and database for each individual tenant. The admin user user can be temporarily
+added as a member of the migrated projects.
+
 Preserving UUIDs
 ----------------
 
