@@ -98,7 +98,7 @@ Member resources may also be migrated separately, after the parent resource was
 migrated.
 
 Already existing resources
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 Some Openstack services allow duplicate or missing resource names, in which case
 ``sunbeam-migrate`` will ignore existing resources that have the same name.
