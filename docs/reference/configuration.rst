@@ -215,7 +215,7 @@ This section describes each of the available options.
 
 | **Type:** ``boolean``
 | **Default:** ``true``
-| **Description:** Use to preserve the fixed IPs when migrating Neutron ports.
+| **Description:** Preserve the fixed IPs when migrating Neutron ports.
 
 ``preserve_router_ip``
 ~~~~~~~~~~~~~~~~~~~~~~
