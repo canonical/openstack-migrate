@@ -45,8 +45,6 @@ class VolumeTypeHandler(base.BaseMigrationHandler):
             source_type.name, ignore_missing=True
         )
         if existing_type:
-            # TODO: we might consider moving those checks on the manager side
-            # and have a consistent approach across handlers.
             LOG.warning(
                 "Volume type already exists: %s %s",
                 existing_type.id,

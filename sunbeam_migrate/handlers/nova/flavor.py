@@ -35,8 +35,6 @@ class FlavorHandler(base.BaseMigrationHandler):
             source_flavor.name, ignore_missing=True
         )
         if existing_flavor:
-            # TODO: we might consider moving those checks on the manager side
-            # and have a consistent approach across handlers.
             LOG.warning(
                 "Flavor already exists: %s %s", existing_flavor.id, existing_flavor.name
             )
