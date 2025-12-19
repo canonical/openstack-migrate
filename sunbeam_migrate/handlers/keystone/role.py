@@ -74,8 +74,6 @@ class RoleHandler(base.BaseMigrationHandler):
 
         existing_role = self._destination_session.identity.find_role(**find_kwargs)
         if existing_role:
-            # TODO: we might consider moving those checks on the manager side
-            # and have a consistent approach across handlers.
             LOG.warning(
                 "Role already exists: %s %s",
                 existing_role.id,
