@@ -32,6 +32,8 @@ JSON
 Juju
 Kubeflow
 Kubernetes
+kv
+KV
 Launchpad
 linter
 LTS
@@ -40,6 +42,7 @@ lxdbr
 Makefile
 Matrix
 Mattermost
+mypasswords
 MyST
 namespace
 namespaces

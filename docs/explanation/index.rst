@@ -9,3 +9,4 @@ Index
 
    architecture
    multitenant-mode
+   vault-secret-migration
