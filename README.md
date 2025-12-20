@@ -1,5 +1,14 @@
 # sunbeam-migrate
-A tool that facilitates the migration from Charmed Openstack to Sunbeam.
+
+`sunbeam-migrate` facilitates the migration from Charmed Openstack to
+[Canonical OpenStack](https://canonical.com/openstack>) (Sunbeam).
+
+The tool is designed with simplicity and versatility in mind, relying only on
+public OpenStack APIs. As such, it can migrate between different OpenStack
+distributions and even different releases.
+
+It models resource hierarchies and ownership, which are automatically
+handled during the migration process.
 
 ## Documentation
 
