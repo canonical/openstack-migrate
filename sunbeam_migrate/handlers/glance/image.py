@@ -144,9 +144,8 @@ class ImageHandler(base.BaseMigrationHandler):
             LOG.warning(
                 "The Glance image doesn’t contain a checksum, skipping validation."
             )
-        else:
-            if destination_image.checksum != source_image.checksum:
-                raise exception.Invalid("Checksum mismatch in transferred image.")
+        elif destination_image.checksum != source_image.checksum:
+            raise exception.Invalid("Checksum mismatch in transferred image.")
 
         return destination_image.id
 
@@ -159,7 +158,7 @@ class ImageHandler(base.BaseMigrationHandler):
             md5.update(chunk)
             yield chunk
 
-        if md5.hexdigest() != response.headers["Content-MD5"] and source_image.checksum:
+        if source_image.checksum and md5.hexdigest() != response.headers["Content-MD5"]:
             raise exception.Invalid("Checksum mismatch in downloaded image.")
 
     def get_source_resource_ids(self, resource_filters: dict[str, str]) -> list[str]:
