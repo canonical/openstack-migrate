@@ -98,7 +98,10 @@ class VolumeTypeHandler(base.BaseMigrationHandler):
             openstack_session.block_storage.delete_type(
                 resource_id, ignore_missing=True
             )
-        except Exception:
+        except Exception as ex:
             # TODO: stop suppressing this once we include a flag along with
             # the resource dependencies, specifying which ones can be deleted.
-            LOG.warning("Unable to delete volume type, it's probably still in use.")
+            LOG.warning(
+                "Unable to delete volume type, it's probably still in use. Error: %s",
+                ex,
+            )
