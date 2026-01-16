@@ -105,7 +105,9 @@ class ShareTypeHandler(base.BaseMigrationHandler):
             manila.share_types.delete(resource_id)
         except manila_exc.NotFound:
             pass
-        except Exception:
+        except Exception as ex:
             # TODO: stop suppressing this once we include a flag along with
             # the resource dependencies, specifying which ones can be deleted.
-            LOG.warning("Unable to delete share type, it's probably still in use.")
+            LOG.warning(
+                "Unable to delete share type, it's probably still in use. Error: %s", ex
+            )

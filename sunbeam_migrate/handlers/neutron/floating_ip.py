@@ -61,9 +61,9 @@ class FloatingIPHandler(base.BaseMigrationHandler):
         if floating_ip:
             try:
                 floating_ip_addr = ipaddress.ip_address(floating_ip)
-            except ValueError:
-                LOG.error("Unable to parse FIP address: %s", floating_ip)
-                floating_ip_addr = None
+            except ValueError as ex:
+                LOG.error("Unable to parse FIP address %s. Error: %s", floating_ip, ex)
+                raise
 
         if floating_ip_addr:
             for subnet in self._source_session.network.subnets(
@@ -74,8 +74,9 @@ class FloatingIPHandler(base.BaseMigrationHandler):
                     continue
                 try:
                     network = ipaddress.ip_network(cidr, strict=False)
-                except ValueError:
-                    continue
+                except ValueError as ex:
+                    LOG.error("Unable to parse subnet CIDR %s. Error: %s", cidr, ex)
+                    raise
 
                 if floating_ip_addr in network:
                     # The Floating IP might not have a subnet_id set,
