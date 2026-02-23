@@ -24,7 +24,7 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true  
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -37,6 +37,7 @@ jobs:
       - name: Install dependencies
         run: |
           set -ex
+          sudo apt-get update
           sudo apt -y install \
             cargo \
             libpython3-dev \
