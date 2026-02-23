@@ -6,10 +6,10 @@ Migrating secrets
 Barbican resources cannot be retrieved by other projects unless explicitly
 allowed through ACLs.
 
-``sunbeam-migrate`` currently expects to identify resources solely based on
+``openstack-migrate`` currently expects to identify resources solely based on
 their IDs, for which reason cross-project secret migration is not supported.
 
-To migrate these resources, consider using a separate ``sunbeam-migrate`` config
+To migrate these resources, consider using a separate ``openstack-migrate`` config
 and database for each individual tenant. The admin user user can be temporarily
 added as a member of the migrated projects.
 
@@ -25,7 +25,7 @@ We'll use a batch migration, covering all secrets owned by the current project.
 
 .. code-block:: none
 
-  sunbeam-migrate start-batch \
+  openstack-migrate start-batch \
     --resource-type=secret \
     --all
 

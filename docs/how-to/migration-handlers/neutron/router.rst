@@ -20,7 +20,7 @@ Example
 
 .. code-block:: none
 
-  sunbeam-migrate start \
+  openstack-migrate start \
     --resource-type=router \
     --include-dependencies \
     --include-members \

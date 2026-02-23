@@ -1,7 +1,7 @@
 Migrating images
 ================
 
-The image migration handler is an essential part of the ``sunbeam-migration``
+The image migration handler is an essential part of the ``openstack-migrate``
 tool since it's also used to transfer Nova instance and Cinder volume data.
 
 Transferred images do not get written to disk. Instead, the data is retrieved
@@ -18,7 +18,7 @@ The following example migrates an image and removes it from the source cloud:
 
 .. code-block:: none
 
-    sunbeam-migrate start \
+    openstack-migrate start \
       --include-dependencies \
       --resource-type=image \
       --cleanup-source \

@@ -2387,7 +2387,7 @@ wheels = [
 ]
 
 [[package]]
-name = "sunbeam-migrate"
+name = "openstack-migrate"
 version = "2024.1"
 source = { editable = "." }
 dependencies = [

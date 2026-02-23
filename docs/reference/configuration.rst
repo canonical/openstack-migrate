@@ -3,7 +3,7 @@
 Configuration
 =============
 
-``sunbeam-migrate`` receives a YAML configuration file that defines:
+``openstack-migrate`` receives a YAML configuration file that defines:
 
 * the source and destination cloud
 * credentials used to identify and migrate resources
@@ -14,7 +14,7 @@ Configuration
 * multi-tenant mode
 
 The location of this file can be specified either using the
-``SUNBEAM_MIGRATE_CONFIG`` environment variable or through the ``--config``
+``OPENSTACK_MIGRATE_CONFIG`` environment variable or through the ``--config``
 parameter.
 
 Minimal sample
@@ -26,7 +26,7 @@ Minimal sample
   cloud_config_file: /home/ubuntu/cloud-config.yaml
   source_cloud_name: source-admin
   destination_cloud_name: destination-admin
-  database_file: /home/ubuntu/.local/share/sunbeam-migrate/sqlite.db
+  database_file: /home/ubuntu/.local/share/openstack-migrate/sqlite.db
   multitenant_mode: true
 
 ``cloud_config_file`` is a standard OpenStack `clouds yaml`_ file that contains
@@ -83,8 +83,8 @@ This section describes each of the available options.
 
 | **Type:** ``string``
 | **Default:** ``null``
-| **Description:** Log directory (optional). If set, a new log file will be created at the specified location for each ``sunbeam-migrate`` invocation. Log files have the following format:
-| ``sunbeam-migrate-%Y%m%d-%H%M%S.%f.log``.
+| **Description:** Log directory (optional). If set, a new log file will be created at the specified location for each ``openstack-migrate`` invocation. Log files have the following format:
+| ``openstack-migrate-%Y%m%d-%H%M%S.%f.log``.
 
 ``log_console``
 ~~~~~~~~~~~~~~~
@@ -118,15 +118,15 @@ This section describes each of the available options.
 ~~~~~~~~~~~~~~~~~
 
 | **Type:** ``string``
-| **Default:** ``$HOME/.local/share/sunbeam-migrate/sqlite.db``
-| **Description:** The internal Sqlite database location. ``sunbeam-migrate`` will create the directory automatically if missing.
+| **Default:** ``$HOME/.local/share/openstack-migrate/sqlite.db``
+| **Description:** The internal Sqlite database location. ``openstack-migrate`` will create the directory automatically if missing.
 
 
 ``temporary_migration_dir``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 | **Type:** ``string``
-| **Default:** ``$HOME/.local/share/sunbeam-migrate/migration_dir``
+| **Default:** ``$HOME/.local/share/openstack-migrate/migration_dir``
 | **Description:** # The directory used to store temporary files and mounts used as part of the migration process.
 
 ``multitenant_mode``
@@ -241,7 +241,7 @@ This section describes each of the available options.
 | **Default:** ``null``
 | **Description:** The local IP address used to access Manila shares.
 
-If unspecified, it will be automatically determined based on the host routes. When migrating shares, ``sunbeam-migrate`` transparently handles shares access rules in order to be able to mount the shares and transfer data.
+If unspecified, it will be automatically determined based on the host routes. When migrating shares, ``openstack-migrate`` transparently handles shares access rules in order to be able to mount the shares and transfer data.
 
 ``member_role_name``
 ~~~~~~~~~~~~~~~~~~~~
@@ -252,4 +252,4 @@ If unspecified, it will be automatically determined based on the host routes. Wh
 
 When migrating certain resources to other tenants (e.g. instances, volumes or shares), we need to a project scoped session using the destination project.
 
-``sunbeam-migrate`` will transparently assign the member role to the user that initiated the migration.
+``openstack-migrate`` will transparently assign the member role to the user that initiated the migration.

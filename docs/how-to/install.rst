@@ -1,7 +1,7 @@
 Installation
 ------------
 
-``sunbeam-migrate`` is a tool written entirely in Python, as such we
+``openstack-migrate`` is a tool written entirely in Python, as such we
 are going to install it in a Python virtual environment.
 
 .. code-block:: shell
@@ -10,20 +10,20 @@ are going to install it in a Python virtual environment.
   sudo apt-get install python3-venv
 
   # Setup a new virtual env.
-  python3 -m venv ~/sunbeam-migrate-venv
+  python3 -m venv ~/openstack-migrate-venv
 
   # Activate the venv.
-  source ~/sunbeam-migrate-venv/bin/activate
+  source ~/openstack-migrate-venv/bin/activate
 
-  # Install sunbeam-migrate.
-  pip3 install git+https://github.com/petrutlucian94/sunbeam-migrate.git@main
+  # Install openstack-migrate.
+  pip3 install git+https://github.com/canonical/openstack-migrate.git@main
 
 Let's verify the installation by getting the list of available commands:
 
 .. code-block:: none
 
-  sunbeam-migrate -h
-  Usage: sunbeam-migrate [OPTIONS] COMMAND [ARGS]...
+  openstack-migrate -h
+  Usage: openstack-migrate [OPTIONS] COMMAND [ARGS]...
 
     Migrate resources between Openstack clouds.
 
@@ -38,7 +38,7 @@ Let's verify the installation by getting the list of available commands:
   Commands:
     capabilities       Describe migration capabilities.
     cleanup-source     Cleanup the source after successful migrations.
-    delete             Remove migrations from the sunbeam-migrate database.
+    delete             Remove migrations from the openstack-migrate database.
     list               List migrations.
     register-external  Register an external migration.
     restore            Restore soft-deleted migrations.

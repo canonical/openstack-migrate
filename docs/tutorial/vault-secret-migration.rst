@@ -143,7 +143,7 @@ The migration script handles both export from the source Vault and import to the
 Using the Migration Script
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
-The migration script is provided in the `sunbeam-migrate` repository under `misc/scripts/vault_migrate.sh <https://github.com/petrutlucian94/sunbeam-migrate/blob/main/misc/scripts/vault_migrate.sh>`_. Save the script to your local machine.
+The migration script is provided in the `openstack-migrate` repository under `misc/scripts/vault_migrate.sh <https://github.com/canonical/openstack-migrate/blob/main/misc/scripts/vault_migrate.sh>`_. Save the script to your local machine.
 
 .. code-block:: bash
 

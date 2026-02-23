@@ -18,7 +18,7 @@ The following example recursively migrates a domain:
 
 .. code-block:: none
 
-  sunbeam-migrate start \
+  openstack-migrate start \
     --resource-type=domain \
     --include-members \
     cb0eb78556a14df1bb6220dee836df28

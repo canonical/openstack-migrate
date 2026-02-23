@@ -4,13 +4,13 @@ Migrating ports
 Neutron ports would usually be migrated as associated resources of instances
 and the migration would cascade to networks, subnets and security groups.
 
-However, ``sunbeam-migrate`` allows migrating individual ports explicitly.
+However, ``openstack-migrate`` allows migrating individual ports explicitly.
 
 .. note::
 
   Batch port migrations are not supported.
 
-The user can configure whether ``sunbeam-migrate`` should preserve the following:
+The user can configure whether ``openstack-migrate`` should preserve the following:
 
 * port fixed IP and MAC addresses
 * floating IP, optionally using the exact same address
@@ -20,7 +20,7 @@ Example
 
 .. code-block:: none
 
-  sunbeam-migrate start \
+  openstack-migrate start \
     --include-dependencies \
     --resource-type=port \
     8a32a767-45a7-46b3-9c53-441e23db4d86

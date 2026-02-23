@@ -1,7 +1,7 @@
 Migrating users
 ===============
 
-``sunbeam-migrate`` can migrate Keystone users along with the corresponding
+``openstack-migrate`` can migrate Keystone users along with the corresponding
 domain, project and roles.
 
 In :doc:`multi-tenant mode<../../../explanation/multitenant-mode>`,
@@ -18,7 +18,7 @@ The following example migrates an user and all the dependent resources:
 
 .. code-block:: none
 
-  sunbeam-migrate start \
+  openstack-migrate start \
     --resource-type=user \
     --include-dependencies \
     3ac5f091c2ee46e7aaee3ecd74a8c704

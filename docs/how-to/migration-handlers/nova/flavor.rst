@@ -10,18 +10,18 @@ Flavors can be migrated individually or as Nova instance
 If the flavor properties are not applicable on the destination cloud,
 users may choose to recreate it manually and then
 :doc:`register the external migration <../../operations/external-migrations>`
-in ``sunbeam-migrate``.
+in ``openstack-migrate``.
 
 Note that if the flavor already exists on the destination side, the migration
 will be skipped and the destination flavor ID will be recorded in the
-``sunbeam-migrate`` database.
+``openstack-migrate`` database.
 
 Example
 -------
 
 .. code-block:: none
 
-  sunbeam-migrate start \
+  openstack-migrate start \
     --resource-type=flavor \
     c6156098-6ff7-4af3-8d75-94cf61b341cd
 

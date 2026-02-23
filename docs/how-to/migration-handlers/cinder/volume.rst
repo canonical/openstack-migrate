@@ -1,10 +1,10 @@
 Migrating volumes
 =================
 
-``sunbeam-migrate`` can be used to migrate Cinder volumes along with
+``openstack-migrate`` can be used to migrate Cinder volumes along with
 the corresponding volume types.
 
-In order to access the volume data, ``sunbeam-migrate`` temporarily uploads
+In order to access the volume data, ``openstack-migrate`` temporarily uploads
 them to Glance.
 
 While it may not be the most efficient Cinder volume migration method, it's
@@ -57,7 +57,7 @@ Volume types
 
 The source volume type specifications may not be applicable to the destination cloud.
 
-If ``preserve_volume_type`` is disabled, ``sunbeam-migrate`` will skip migrating
+If ``preserve_volume_type`` is disabled, ``openstack-migrate`` will skip migrating
 the volume type and use the default volume type instead.
 
 Users may also recreate volume types manually and register it using the
@@ -71,7 +71,7 @@ The following example migrates a volume and removes it from the source cloud:
 
 .. code-block:: none
 
-  sunbeam-migrate start \
+  openstack-migrate start \
     --include-dependencies \
     --resource-type=volume \
     --cleanup-source \

@@ -4,7 +4,7 @@ Migrating floating IPs
 Neutron floating IPs would usually be migrated as associated resources of
 load balancers or Neutron ports.
 
-However, ``sunbeam-migrate`` allows migrating individual floating IPs
+However, ``openstack-migrate`` allows migrating individual floating IPs
 explicitly.
 
 The migration will cascade to the corresponding networks, subnets and routers
@@ -18,7 +18,7 @@ Example:
 
 .. code-block:: none
 
-    sunbeam-migrate start \
+    openstack-migrate start \
       --include-dependencies \
       --resource-type=floating-ip \
       a7d143ad-c936-4f0f-9bbd-10e3ae30a162

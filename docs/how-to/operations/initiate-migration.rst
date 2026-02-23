@@ -1,7 +1,7 @@
 Initiating migrations
 =====================
 
-Make sure to properly configure ``sunbeam-migrate`` before initiating resource
+Make sure to properly configure ``openstack-migrate`` before initiating resource
 migrations. See the :ref:`tutorial <getting_started_ref>` and the
 :ref:`configuration reference <config_ref>` to get started.
 
@@ -15,8 +15,8 @@ The syntax for individual resource migrations is the following:
 
 .. code-block:: none
 
-  sunbeam-migrate start -h
-  Usage: sunbeam-migrate start [OPTIONS] RESOURCE_ID
+  openstack-migrate start -h
+  Usage: openstack-migrate start [OPTIONS] RESOURCE_ID
 
     Migrate an individual resource.
 
@@ -35,7 +35,7 @@ At minimum, we need to specify the type of the resource to migrate and its ID
 (a UUID in most cases).
 
 See the :ref:`architecture page <resource_hierarchies_ref>` for an explanation
-of how ``sunbeam-migrate`` handles resource dependencies.
+of how ``openstack-migrate`` handles resource dependencies.
 
 If ``--cleanup-source`` is specified, successfully migrated resources are
 automatically removed from the source cloud. This
@@ -44,13 +44,13 @@ automatically removed from the source cloud. This
 Batch migrations
 ----------------
 
-``sunbeam-migrate`` can migrate a group of resources that match user
+``openstack-migrate`` can migrate a group of resources that match user
 specified filters:
 
 .. code-block:: none
 
-  sunbeam-migrate start-batch -h
-  Usage: sunbeam-migrate start-batch [OPTIONS]
+  openstack-migrate start-batch -h
+  Usage: openstack-migrate start-batch [OPTIONS]
 
     Migrate multiple resources that match the filters.
 

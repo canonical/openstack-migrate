@@ -8,7 +8,7 @@ For this reason, cross-project keypair migration is not supported for the time
 being.
 
 To migrate keypairs owned by other projects, consider using a separate
-``sunbeam-migrate`` config and database for each individual tenant.
+``openstack-migrate`` config and database for each individual tenant.
 The admin user can be temporarily added as a member of the migrated projects.
 
 Example
@@ -18,7 +18,7 @@ This example showcases a keypair migration:
 
 .. code-block:: none
 
-  sunbeam-migrate start \
+  openstack-migrate start \
     --resource-type=keypair \
     --cleanup-source \
     test-335612855

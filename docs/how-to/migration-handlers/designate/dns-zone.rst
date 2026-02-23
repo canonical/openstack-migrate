@@ -11,7 +11,7 @@ recreates the DNS zone with all of its record sets on the destination.
 
 .. code-block:: none
 
-  sunbeam-migrate start \
+  openstack-migrate start \
     --resource-type=dns-zone \
     68cfff5c-02dd-44b6-a436-b87d82f2a1d6
 

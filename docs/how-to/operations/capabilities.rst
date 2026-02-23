@@ -6,7 +6,7 @@ define resource relations and which batch migration filters they accept:
 
 .. code-block:: none
 
-  sunbeam-migrate capabilities
+  openstack-migrate capabilities
 
   +-------------------------------------------------------------------------------------------------------------------------------------------+
   |                                                             Migration handlers                                                            |
@@ -42,7 +42,7 @@ We can also specify the resource type like so:
 
 .. code-block:: none
 
-  sunbeam-migrate capabilities --resource-type=instance
+  openstack-migrate capabilities --resource-type=instance
 
   +------------------------------------------------------------------------------------+
   |                                 Migration handler                                  |

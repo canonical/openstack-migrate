@@ -11,20 +11,20 @@
 # succeed.
 name: Check and document build requirements for Sphinx venv
 on:
-  push:
-    paths:
-      - 'docs/conf.py'
-      - 'docs/custom_conf.py'
-  pull_request:
-    paths:
-      - 'docs/conf.py'
-      - 'docs/custom_conf.py'
+  # push:
+  #   paths:
+  #     - 'docs/conf.py'
+  #     - 'docs/custom_conf.py'
+  # pull_request:
+  #   paths:
+  #     - 'docs/conf.py'
+  #     - 'docs/custom_conf.py'
   workflow_dispatch:
 
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true  
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -37,6 +37,7 @@ jobs:
       - name: Install dependencies
         run: |
           set -ex
+          sudo apt-get update
           sudo apt -y install \
             cargo \
             libpython3-dev \
