@@ -15,7 +15,7 @@ The following example migrates an user and all the dependent resources:
 
 .. code-block:: none
 
-  sunbeam-migrate start \
+  openstack-migrate start \
     --resource-type=role \
     --include-dependencies \
     b02b88f0855644bc9be5c5ea6f1b33da

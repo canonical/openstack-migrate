@@ -1,6 +1,6 @@
-# sunbeam-migrate
+# openstack-migrate
 
-`sunbeam-migrate` facilitates the migration from Charmed Openstack to
+`openstack-migrate` facilitates the migration from Charmed Openstack to
 [Canonical OpenStack](https://canonical.com/openstack>) (Sunbeam).
 
 The tool is designed with simplicity and versatility in mind, relying only on
@@ -12,9 +12,9 @@ handled during the migration process.
 
 ## Documentation
 
-* Main page: https://sunbeam-migrate.readthedocs.io
-* Tutorial: https://sunbeam-migrate.readthedocs.io/en/latest/tutorial/get-started-with-sunbeam-migrate/
-* Migration handlers: https://sunbeam-migrate.readthedocs.io/en/latest/how-to/migration-handlers/
+* Main page: https://openstack-migrate.readthedocs.io
+* Tutorial: https://openstack-migrate.readthedocs.io/en/latest/tutorial/get-started-with-openstack-migrate/
+* Migration handlers: https://openstack-migrate.readthedocs.io/en/latest/how-to/migration-handlers/
 
 ## Potential future improvements
 
@@ -40,7 +40,7 @@ handled during the migration process.
 
 ## Integration tests
 
-`sunbeam_migrate/tests/integration` contains integration tests that exercise every supported
+`openstack_migrate/tests/integration` contains integration tests that exercise every supported
 migration handler.
 
 The following requirements must be installed first:
@@ -51,19 +51,19 @@ sudo apt-get install -y tox nfs-common
 sudo snap install --classic astral-uv
 ```
 
-The tests receive a configuration file similar to the standard `SUNBEAM_MIGRATE_CONFIG` file,
+The tests receive a configuration file similar to the standard `OPENSTACK_MIGRATE_CONFIG` file,
 having a few additional test specific settings.
 
 Use the following to invoke the tests:
 
 ```
-$ export SUNBEAM_MIGRATE_CONFIG=~/migrate-config-test.yaml
-$ cat > $SUNBEAM_MIGRATE_CONFIG <<EOF
+$ export OPENSTACK_MIGRATE_CONFIG=~/migrate-config-test.yaml
+$ cat > $OPENSTACK_MIGRATE_CONFIG <<EOF
 log_level: info
 cloud_config_file: /home/ubuntu/cloud-config.yaml
 source_cloud_name: source-admin
 destination_cloud_name: destination-admin
-database_file: /home/ubuntu/.local/share/sunbeam-migrate/sqlite.db
+database_file: /home/ubuntu/.local/share/openstack-migrate/sqlite.db
 preserve_volume_type: true
 
 # settings used by the integration tests

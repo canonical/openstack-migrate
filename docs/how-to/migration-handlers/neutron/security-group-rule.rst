@@ -2,7 +2,7 @@ Migrating security groups rules
 ===============================
 
 Security group rules would usually be migrated as security group
-:ref:`members <resource_hierarchies_ref>`. However, ``sunbeam-migrate``
+:ref:`members <resource_hierarchies_ref>`. However, ``openstack-migrate``
 also allows migrating individual rules. 
 
 .. note::
@@ -21,7 +21,7 @@ Example
 
 .. code-block:: none
 
-  sunbeam-migrate start \
+  openstack-migrate start \
     --include-dependencies \
     --resource-type=security-group-rule \
     373c9707-b234-489b-a904-dd7e0f87a0c4

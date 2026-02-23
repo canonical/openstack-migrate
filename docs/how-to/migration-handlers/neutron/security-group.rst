@@ -19,7 +19,7 @@ group rules.
 
 .. code-block:: none
 
-  sunbeam-migrate start \
+  openstack-migrate start \
     --include-members \
     --resource-type=security-group \
     fcbdfef5-9eb2-4ab9-8fc7-742883b8c511
@@ -42,7 +42,7 @@ Resulting migrations:
 
 .. code-block:: none
 
-  sunbeam-migrate list
+  openstack-migrate list
 
   +----------------------------------------------------------------------------------------------------------------------------------------------------------------+
   |                                                                           Migrations                                                                           |

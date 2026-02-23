@@ -5,7 +5,7 @@ Use the following command to list the performed migrations:
 
 .. code-block:: none
 
-  sunbeam-migrate list
+  openstack-migrate list
 
   +-----------------------------------------------------------------------------------------------------------------------------------------------------------+
   |                                                                         Migrations                                                                        |
@@ -37,7 +37,7 @@ a given migration like so:
 
 .. code-block:: none
 
-  sunbeam-migrate show 0209b968-10ae-4770-ac6e-6c454fb4323f
+  openstack-migrate show 0209b968-10ae-4770-ac6e-6c454fb4323f
 
   +----------------------------------------------------------+
   |                        Migration                         |

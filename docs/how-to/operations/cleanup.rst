@@ -15,9 +15,9 @@ Use the ``cleanup-source`` command to do so:
 
 .. code-block:: none
 
-  sunbeam-migrate cleanup-source -h
+  openstack-migrate cleanup-source -h
 
-  Usage: sunbeam-migrate cleanup-source [OPTIONS]
+  Usage: openstack-migrate cleanup-source [OPTIONS]
 
     Cleanup the source after successful migrations.
 

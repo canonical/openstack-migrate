@@ -19,7 +19,7 @@ import datetime
 ############################################################
 
 # Product name
-project = 'Sunbeam Migrate'
+project = 'Openstack Migrate'
 author = 'Canonical Ltd.'
 
 # The title you want to display for the documentation in the sidebar.
@@ -56,7 +56,7 @@ copyright = '%s CC-BY-SA, %s' % (datetime.date.today().year, author)
 # don't know yet)
 # NOTE: If no ogp_* variable is defined (e.g. if you remove this section) the
 # sphinxext.opengraph extension will be disabled.
-ogp_site_url = 'https://sunbeam-migrate.readthedocs-hosted.com/'
+ogp_site_url = 'https://openstack-migrate.readthedocs-hosted.com/'
 # The documentation website name (usually the same as the product name)
 ogp_site_name = project
 # The URL of an image or logo that is used in the preview
@@ -99,7 +99,7 @@ html_context = {
 
     # Change to the GitHub URL for your project
     # This is used, for example, to link to the source files and allow creating GitHub issues directly from the documentation.
-    'github_url': 'https://github.com/petrutlucian94/sunbeam-migrate',
+    'github_url': 'https://github.com/petrutlucian94/openstack-migrate',
 
     # Change to the branch for this version of the documentation
     'github_version': 'main',

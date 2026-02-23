@@ -10,7 +10,7 @@ Use the following command to migrate a network and all its belonging subnets.
 
 .. code-block:: none
 
-  sunbeam-migrate start \
+  openstack-migrate start \
     --resource-type=network \
     --include-members \
     bd0c1019-3d1b-4f64-86c4-c4c0e04a6a36

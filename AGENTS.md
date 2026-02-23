@@ -2,12 +2,12 @@
 
 ## Overview
 
-- `sunbeam-migrate` is a command-line tool that facilitates the migration of
+- `openstack-migrate` is a command-line tool that facilitates the migration of
   resources between OpenStack clouds (e.g. images, networks, volumes, etc.).
 - The documentation under `docs/` provides usage examples.
-- `sunbeam-migrate start` can be used to migrate a single resource, specifying
+- `openstack-migrate start` can be used to migrate a single resource, specifying
   the resource ID and resource type.
-- `sunbeam-migrate start-batch` migrates all the resources that match a given set
+- `openstack-migrate start-batch` migrates all the resources that match a given set
   of filters.
 - If the `--include-dependencies` flag is set, resource dependencies will be
   migrated automatically. For example, secrets referenced by a secret container
@@ -17,9 +17,9 @@
   rules belonging to a security group.
 - The `--cleanup-source` flag can be used to automatically remove the resources
   on the source side if the migration succeeds.
-- The `sunbeam-migrate list` command enumaretes the migrations, along with the
+- The `openstack-migrate list` command enumaretes the migrations, along with the
   resource type, source resource id, destination resource id and migration status.
-- an environment variable called SUNBEAM_MIGRATE_CONFIG is used to provide a
+- an environment variable called OPENSTACK_MIGRATE_CONFIG is used to provide a
   configuration file. Among other settings, it points to a clouds.yaml file that
   has credentials for the source and destination clouds.
 
@@ -56,7 +56,7 @@
   - We're using the Pytest framework
   - conftest.py defines fixtures that create temporary OpenStack credentials
     and cleanup the resources at the end of the tests.
-  - The test accepts a config file similar to the one used by sunbeam-migrate.
+  - The test accepts a config file similar to the one used by openstack-migrate.
   - There are fixtures that return the test config path as well as OpenStack SDK
     sessions for both the source and destination clouds.
   - The tests should not use the `base_` fixtures directly, those are meant to

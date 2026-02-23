@@ -1,7 +1,7 @@
 Registering external migrations
 -------------------------------
 
-``sunbeam-migrate`` normally creates exact copies of the migrated resources.
+``openstack-migrate`` normally creates exact copies of the migrated resources.
 This isn't always desired.
 
 Let's take volume types for example. The extra specs may contain backend
@@ -17,12 +17,12 @@ Subsequent volume migrations will automatically use the manually created volume 
 
 .. code-block:: none
 
-  sunbeam-migrate register-external \
+  openstack-migrate register-external \
     --resource-type volume-type \
     f104d538-a2f0-4897-92ea-9887bfb1c926 \
     491481cd-d9d0-4639-afe4-d5f07223f4db
 
-  sunbeam-migrate show fd91c637-7b91-4fb6-9bd6-afb84c9d79a1
+  openstack-migrate show fd91c637-7b91-4fb6-9bd6-afb84c9d79a1
 
   +----------------------------------------------------------+
   |                        Migration                         |

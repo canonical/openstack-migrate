@@ -6,11 +6,11 @@ requires = ["setuptools", "setuptools-scm", "pbr>=2.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sunbeam-migrate"
+name = "openstack-migrate"
 version = "2024.1"
 requires-python = "~=3.12.0"
 license-files = ["LICENSE"]
-description = "A tool that facilitates the migration from Charmed Openstack to Sunbeam."
+description = "A tool that facilitates the migration between OpenStack clouds."
 readme = "README.md"
 authors = [
     { name = "Cloudbase Solutions", email = "support@cloudbasesolutions.com" },
@@ -90,14 +90,14 @@ dev = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/petrutlucian94/sunbeam-migrate"
-"Bug Reports" = "https://github.com/petrutlucian94/sunbeam-migrate/issues"
+"Homepage" = "https://github.com/petrutlucian94/openstack-migrate"
+"Bug Reports" = "https://github.com/petrutlucian94/openstack-migrate/issues"
 
 [project.scripts]
-sunbeam-migrate = "sunbeam_migrate.main:main"
+openstack-migrate = "openstack_migrate.main:main"
 
 [tool.setuptools]
-packages = ["sunbeam_migrate"]
+packages = ["openstack_migrate"]
 
 [tool.uv]
 constraint-dependencies = [
@@ -761,14 +761,14 @@ ignore = [
 extend-ignore = ["E203"]
 
 [tool.ruff.lint.extend-per-file-ignores]
-"sunbeam_migrate/tests/*" = [
+"openstack_migrate/tests/*" = [
     "S",    # Disable bandit rules in tests
 ]
 "**/__init__.py" = ["D104"]
 "**/factory.py" = ["E501"]  # expected to contain long module paths
 
 
-"sunbeam_migrate/*" = [
+"openstack_migrate/*" = [
     "D107", # missing docstring in __init__ method
     "D101", # Missing docstring in public class
     "D103", # Missing docstring in public function

@@ -1,9 +1,9 @@
 .. _home:
 
-Sunbeam Migrate documentation
+Openstack Migrate documentation
 =============================
 
-``sunbeam-migrate`` facilitates the migration from Charmed Openstack to
+``openstack-migrate`` facilitates the migration from Charmed Openstack to
 `Canonical OpenStack <https://canonical.com/openstack>`_ (Sunbeam).
 
 The tool is designed with simplicity and versatility in mind, relying only on

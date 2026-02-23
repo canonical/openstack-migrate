@@ -7,8 +7,8 @@ Soft-deleted migration records can be restored using the following command:
 
 .. code-block:: none
 
-  sunbeam-migrate restore -h
-  Usage: sunbeam-migrate restore [OPTIONS]
+  openstack-migrate restore -h
+  Usage: openstack-migrate restore [OPTIONS]
 
     Restore soft-deleted migrations.
 

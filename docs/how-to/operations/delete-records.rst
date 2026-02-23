@@ -3,15 +3,15 @@
 Deleting migration records
 --------------------------
 
-Users can remove migration records from the ``sunbeam-migrate`` database
+Users can remove migration records from the ``openstack-migrate`` database
 using the following command:
 
 .. code-block:: none
 
-  sunbeam-migrate delete -h
-  Usage: sunbeam-migrate delete [OPTIONS]
+  openstack-migrate delete -h
+  Usage: openstack-migrate delete [OPTIONS]
 
-    Remove migrations from the sunbeam-migrate database.
+    Remove migrations from the openstack-migrate database.
 
     Receives optional filters that are joined using "AND" logical operators.
     Performs a soft deletion unless "--hard" is specified.

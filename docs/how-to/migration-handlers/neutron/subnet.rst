@@ -6,7 +6,7 @@ manually or using the ``--include-dependencies`` flag:
 
 .. code-block:: none
 
-  sunbeam-migrate start \
+  openstack-migrate start \
     --resource-type=subnet \
     --include-dependencies \
     9040a40d-d875-4260-927c-f83f60ec4d8c
@@ -21,7 +21,7 @@ Resulting migrations:
 
 .. code-block:: none
 
-  sunbeam-migrate list
+  openstack-migrate list
 
   +----------------------------------------------------------------------------------------------------------------------------------------------------------+
   |                                                                        Migrations                                                                        |

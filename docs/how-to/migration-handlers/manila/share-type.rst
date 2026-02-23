@@ -1,7 +1,7 @@
 Migrating share types
 =====================
 
-By default, ``sunbeam-migrate`` will make an exact copy of the migrated share
+By default, ``openstack-migrate`` will make an exact copy of the migrated share
 type.
 
 These can be migrated individually or as associated resources of Manila shares.
@@ -11,7 +11,7 @@ Mismatching share types
 
 The source share type specifications may not be applicable to the destination cloud.
 
-If ``preserve_share_type`` is disabled, ``sunbeam-migrate`` will skip migrating
+If ``preserve_share_type`` is disabled, ``openstack-migrate`` will skip migrating
 the share type and use the default type instead.
 
 Users may also recreate share types manually and register them using the
@@ -25,7 +25,7 @@ The following example migrates a share type:
 
 .. code-block:: none
 
-  sunbeam-migrate start \
+  openstack-migrate start \
     --resource-type=share-type \
     fb65ae1f-45a9-400d-b935-f1c9412533b5
 

@@ -5,7 +5,7 @@ Logs
 ----
 
 Increasing the log level to "debug" can help determining the cause of
-``sunbeam-migrate`` failures.
+``openstack-migrate`` failures.
 
 This will also bump the log level of the Openstack SDK, which will log
 every HTTP request issued to Openstack services:
@@ -27,9 +27,9 @@ Cross-project migrations (multi-tenant mode) require admin privileges. Make sure
 that the provided credentials have the necessary permissions.
 
 Not all Openstack services allow specifying a different owner when creating
-resources. As such, ``sunbeam-migrate`` needs to use project scoped sessions,
+resources. As such, ``openstack-migrate`` needs to use project scoped sessions,
 assigning itself as a member of the migrated tenant.
 
 We're using the "member" role name but if the Openstack deployment uses
-non-standard role names, please specify it in the ``sunbeam-migrate``
+non-standard role names, please specify it in the ``openstack-migrate``
 configuration.

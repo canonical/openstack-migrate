@@ -1,7 +1,7 @@
 Migrating instances
 ===================
 
-``sunbeam-migrate`` can transfer Nova instances along with associated resources
+``openstack-migrate`` can transfer Nova instances along with associated resources
 such as:
 
 * network resources
@@ -37,7 +37,7 @@ certain properties that are not exposed by Nova (e.g. port MAC address or
 vNIC type). However, this means that Nova will not delete these ports when
 the instance is destroyed.
 
-The user can configure whether ``sunbeam-migrate`` should preserve the following:
+The user can configure whether ``openstack-migrate`` should preserve the following:
 
 * instance availability zone
 * port fixed IP and MAC addresses
@@ -48,7 +48,7 @@ The user can configure whether ``sunbeam-migrate`` should preserve the following
 .. note::
 
   If the desired networks and subnets and routers have been manually recreated
-  on the destination side, make sure to import them in ``sunbeam-migrate`` using
+  on the destination side, make sure to import them in ``openstack-migrate`` using
   the ``register-external`` command.
 
 Example
@@ -56,7 +56,7 @@ Example
 
 .. code-block:: none
 
-  sunbeam-migrate start \
+  openstack-migrate start \
     --resource-type=instance \
     --include-dependencies \
     8a04813d-7942-475a-bba6-4d5b244dffa8

@@ -10,7 +10,7 @@ automatically migrate Keystone dependencies.
 
 .. code-block:: none
 
-  sunbeam-migrate start \
+  openstack-migrate start \
     --resource-type=load-balancer \
     --include-dependencies \
     f76d0bf1-bbb9-45cb-94d5-a7cbc7647bbd
