@@ -1,7 +1,7 @@
 # openstack-migrate
 
 `openstack-migrate` facilitates the migration from Charmed Openstack to
-[Canonical OpenStack](https://canonical.com/openstack>) (Sunbeam).
+[Canonical OpenStack](https://canonical.com/openstack) (Sunbeam).
 
 The tool is designed with simplicity and versatility in mind, relying only on
 public OpenStack APIs. As such, it can migrate between different OpenStack
