@@ -345,7 +345,9 @@ def test_owner_cloud_config_path(tmpdir_factory) -> Path:
 @pytest.fixture(scope="module")
 def test_requester_cloud_config_path(tmpdir_factory) -> Path:
     """The Openstack clouds.yaml used for this class of tests."""
-    return Path(tmpdir_factory.mktemp("openstack_migrate").join("clouds-requester.yaml"))
+    return Path(
+        tmpdir_factory.mktemp("openstack_migrate").join("clouds-requester.yaml")
+    )
 
 
 @pytest.fixture(scope="module")

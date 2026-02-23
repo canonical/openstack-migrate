@@ -4,7 +4,9 @@
 import logging
 
 from openstack_migrate.tests.integration import utils as test_utils
-from openstack_migrate.tests.integration.handlers.cinder import utils as cinder_test_utils
+from openstack_migrate.tests.integration.handlers.cinder import (
+    utils as cinder_test_utils,
+)
 from openstack_migrate.tests.integration.handlers.neutron import utils as neutron_utils
 from openstack_migrate.tests.integration.handlers.nova import utils as nova_utils
 

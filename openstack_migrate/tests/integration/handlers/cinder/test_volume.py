@@ -6,7 +6,9 @@ import json
 import yaml
 
 from openstack_migrate.tests.integration import utils as test_utils
-from openstack_migrate.tests.integration.handlers.cinder import utils as cinder_test_utils
+from openstack_migrate.tests.integration.handlers.cinder import (
+    utils as cinder_test_utils,
+)
 
 TEST_VOLUME_PAYLOAD = "test-volume-payload".encode()
 TEST_VOLUME_SIZE = 1

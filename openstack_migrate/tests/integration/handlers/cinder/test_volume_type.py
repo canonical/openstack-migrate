@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from openstack_migrate.tests.integration import utils as test_utils
-from openstack_migrate.tests.integration.handlers.cinder import utils as cinder_test_utils
+from openstack_migrate.tests.integration.handlers.cinder import (
+    utils as cinder_test_utils,
+)
 
 
 def test_migrate_volume_type_with_cleanup(

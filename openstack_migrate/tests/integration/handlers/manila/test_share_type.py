@@ -5,7 +5,9 @@ import pytest
 from manilaclient import exceptions as manila_exc
 
 from openstack_migrate.tests.integration import utils as test_utils
-from openstack_migrate.tests.integration.handlers.manila import utils as manila_test_utils
+from openstack_migrate.tests.integration.handlers.manila import (
+    utils as manila_test_utils,
+)
 from openstack_migrate.utils import client_utils
 
 

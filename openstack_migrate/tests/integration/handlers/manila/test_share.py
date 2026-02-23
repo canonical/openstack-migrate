@@ -7,7 +7,9 @@ import subprocess
 import yaml
 
 from openstack_migrate.tests.integration import utils as test_utils
-from openstack_migrate.tests.integration.handlers.manila import utils as manila_test_utils
+from openstack_migrate.tests.integration.handlers.manila import (
+    utils as manila_test_utils,
+)
 from openstack_migrate.utils import manila_utils
 
 
