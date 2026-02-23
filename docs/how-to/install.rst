@@ -16,7 +16,7 @@ are going to install it in a Python virtual environment.
   source ~/openstack-migrate-venv/bin/activate
 
   # Install openstack-migrate.
-  pip3 install git+https://github.com/petrutlucian94/openstack-migrate.git@main
+  pip3 install git+https://github.com/canonical/openstack-migrate.git@main
 
 Let's verify the installation by getting the list of available commands:
 
