@@ -92,7 +92,7 @@ pack* and *Work with your documentation* post-enablement.
     + `Add Python packages`_
     + `Add page-specific configuration`_
 
-  * `Change log`_
+  * `Document change log`_
 
 - `Work with your documentation`_
 
@@ -386,8 +386,8 @@ See the ``custom_conf.py`` file for more information.
 Another example for page-specific configuration is the ``hide-toc`` field (provided by `Furo <Furo documentation_>`_), which can be used to hide the page-internal table of content.
 See `Hiding Contents sidebar`_.
 
-Change log
-~~~~~~~~~~
+Document change log
+~~~~~~~~~~~~~~~~~~~
 
 See the `change log <https://github.com/canonical/sphinx-docs-starter-pack/wiki/Change-log>`_ for a list of relevant changes to the starter pack.
 
