@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = "==3.12.*"
 
 [manifest]
@@ -663,11 +663,11 @@ wheels = [
 
 [[package]]
 name = "certifi"
-version = "2025.11.12"
+version = "2026.10.19"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/a2/8c/58f469717fa48465e4a50c014a0400602d3c437d7c0c468e17ada824da3a/certifi-2025.11.12.tar.gz", hash = "sha256:d8ab5478f2ecd78af242878415affce761ca6bc54a22a27e026d7c25357c3316", size = 160538, upload-time = "2025-11-12T02:54:51.517Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a6/bd/1436c50cc46699de0230fbaacc1d1de7bfec413176099949e9d5112e88f2/certifi-2026.10.19.tar.gz", hash = "sha256:035c1e85572b141bf1c3a3eff0e33a8eb74917522f2559075ff8d2fea780a1ae", size = 137598, upload-time = "2026-10-20T02:24:16.604Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/70/7d/9bc192684cea499815ff478dfcdc13835ddf401365057044fb721ec6bddb/certifi-2025.11.12-py3-none-any.whl", hash = "sha256:97de8790030bbd5c2d96b7ec782fc2f7820ef8dba6db909ccf95449f2d062d4b", size = 159438, upload-time = "2025-11-12T02:54:49.735Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/51/29046e48f693c54e5b7412216d447a1d8362c9653148d98c02cdf65fa733/certifi-2026.10.19-py3-none-any.whl", hash = "sha256:42d35340cc5b9ba78e818ddbff0c5b1c2b779de448a340fd1b989f5fa8670e1b", size = 136464, upload-time = "2026-10-20T02:24:15.072Z" },
 ]
 
 [[package]]
@@ -931,7 +931,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/7d/ec/bad1ac26764d26aa1353216fcbfa4670050f66d445448aafa227f8b16e80/greenlet-3.1.1-cp312-cp312-macosx_11_0_universal2.whl", hash = "sha256:4afe7ea89de619adc868e087b4d2359282058479d7cfb94970adf4b55284574d", size = 274260, upload-time = "2024-09-20T17:08:07.301Z" },
     { url = "https://files.pythonhosted.org/packages/66/d4/c8c04958870f482459ab5956c2942c4ec35cac7fe245527f1039837c17a9/greenlet-3.1.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f406b22b7c9a9b4f8aa9d2ab13d6ae0ac3e85c9a809bd590ad53fed2bf70dc79", size = 649064, upload-time = "2024-09-20T17:36:47.628Z" },
     { url = "https://files.pythonhosted.org/packages/51/41/467b12a8c7c1303d20abcca145db2be4e6cd50a951fa30af48b6ec607581/greenlet-3.1.1-cp312-cp312-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:c3a701fe5a9695b238503ce5bbe8218e03c3bcccf7e204e455e7462d770268aa", size = 663420, upload-time = "2024-09-20T17:39:21.258Z" },
-    { url = "https://files.pythonhosted.org/packages/27/8f/2a93cd9b1e7107d5c7b3b7816eeadcac2ebcaf6d6513df9abaf0334777f6/greenlet-3.1.1-cp312-cp312-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:2846930c65b47d70b9d178e89c7e1a69c95c1f68ea5aa0a58646b7a96df12441", size = 658035, upload-time = "2024-09-20T17:44:26.501Z" },
     { url = "https://files.pythonhosted.org/packages/57/5c/7c6f50cb12be092e1dccb2599be5a942c3416dbcfb76efcf54b3f8be4d8d/greenlet-3.1.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:99cfaa2110534e2cf3ba31a7abcac9d328d1d9f1b95beede58294a60348fba36", size = 660105, upload-time = "2024-09-20T17:08:42.048Z" },
     { url = "https://files.pythonhosted.org/packages/f1/66/033e58a50fd9ec9df00a8671c74f1f3a320564c6415a4ed82a1c651654ba/greenlet-3.1.1-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:1443279c19fca463fc33e65ef2a935a5b09bb90f978beab37729e1c3c6c25fe9", size = 613077, upload-time = "2024-09-20T17:08:33.707Z" },
     { url = "https://files.pythonhosted.org/packages/19/c5/36384a06f748044d06bdd8776e231fadf92fc896bd12cb1c9f5a1bda9578/greenlet-3.1.1-cp312-cp312-musllinux_1_1_aarch64.whl", hash = "sha256:b7cede291382a78f7bb5f04a529cb18e068dd29e0fb27376074b6d0317bf4dd0", size = 1135975, upload-time = "2024-09-20T17:44:15.989Z" },
@@ -1164,6 +1163,120 @@ sdist = { url = "https://files.pythonhosted.org/packages/fd/1d/06475e1cd5264c0b8
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl", hash = "sha256:df5d4365b724cf81b8c6a7312509d0c22386097011ad1abe274afd5e9d3bbc5f", size = 1723263, upload-time = "2024-10-21T12:39:36.247Z" },
 ]
+
+[[package]]
+name = "openstack-migrate"
+version = "2024.1"
+source = { editable = "." }
+dependencies = [
+    { name = "click" },
+    { name = "openstacksdk" },
+    { name = "packaging" },
+    { name = "prettytable" },
+    { name = "pyaml" },
+    { name = "pydantic" },
+    { name = "python-manilaclient" },
+    { name = "sqlalchemy" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "coverage" },
+    { name = "croniter" },
+    { name = "mypy" },
+    { name = "oslotest" },
+    { name = "pytest" },
+    { name = "pytest-mock" },
+    { name = "ruff" },
+    { name = "types-croniter" },
+    { name = "types-pytz" },
+    { name = "types-pyyaml" },
+    { name = "types-requests" },
+]
+openstackclients = [
+    { name = "aodhclient" },
+    { name = "gnocchiclient" },
+    { name = "osc-placement" },
+    { name = "python-barbicanclient" },
+    { name = "python-cloudkittyclient" },
+    { name = "python-congressclient" },
+    { name = "python-designateclient" },
+    { name = "python-freezerclient" },
+    { name = "python-glanceclient" },
+    { name = "python-heatclient" },
+    { name = "python-ironicclient" },
+    { name = "python-keystoneclient" },
+    { name = "python-magnumclient" },
+    { name = "python-masakariclient" },
+    { name = "python-mistralclient" },
+    { name = "python-monascaclient" },
+    { name = "python-muranoclient" },
+    { name = "python-neutronclient" },
+    { name = "python-octaviaclient" },
+    { name = "python-openstackclient" },
+    { name = "python-saharaclient" },
+    { name = "python-senlinclient" },
+    { name = "python-swiftclient" },
+    { name = "python-tackerclient" },
+    { name = "python-troveclient" },
+    { name = "python-vitrageclient" },
+    { name = "python-watcherclient" },
+    { name = "python-zaqarclient" },
+    { name = "setuptools-scm" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "aodhclient", marker = "extra == 'openstackclients'" },
+    { name = "click" },
+    { name = "coverage", marker = "extra == 'dev'", specifier = ">=4.0,!=4.4" },
+    { name = "croniter", marker = "extra == 'dev'" },
+    { name = "gnocchiclient", marker = "extra == 'openstackclients'" },
+    { name = "mypy", marker = "extra == 'dev'" },
+    { name = "openstacksdk" },
+    { name = "osc-placement", marker = "extra == 'openstackclients'" },
+    { name = "oslotest", marker = "extra == 'dev'", specifier = ">=3.2.0" },
+    { name = "packaging", specifier = ">=23.2" },
+    { name = "prettytable" },
+    { name = "pyaml" },
+    { name = "pydantic" },
+    { name = "pytest", marker = "extra == 'dev'" },
+    { name = "pytest-mock", marker = "extra == 'dev'" },
+    { name = "python-barbicanclient", marker = "extra == 'openstackclients'" },
+    { name = "python-cloudkittyclient", marker = "extra == 'openstackclients'" },
+    { name = "python-congressclient", marker = "extra == 'openstackclients'" },
+    { name = "python-designateclient", marker = "extra == 'openstackclients'" },
+    { name = "python-freezerclient", marker = "extra == 'openstackclients'" },
+    { name = "python-glanceclient", marker = "extra == 'openstackclients'" },
+    { name = "python-heatclient", marker = "extra == 'openstackclients'" },
+    { name = "python-ironicclient", marker = "extra == 'openstackclients'" },
+    { name = "python-keystoneclient", marker = "extra == 'openstackclients'" },
+    { name = "python-magnumclient", marker = "extra == 'openstackclients'" },
+    { name = "python-manilaclient" },
+    { name = "python-masakariclient", marker = "extra == 'openstackclients'" },
+    { name = "python-mistralclient", marker = "extra == 'openstackclients'" },
+    { name = "python-monascaclient", marker = "extra == 'openstackclients'" },
+    { name = "python-muranoclient", marker = "extra == 'openstackclients'" },
+    { name = "python-neutronclient", marker = "extra == 'openstackclients'" },
+    { name = "python-octaviaclient", marker = "extra == 'openstackclients'" },
+    { name = "python-openstackclient", marker = "extra == 'openstackclients'" },
+    { name = "python-saharaclient", marker = "extra == 'openstackclients'" },
+    { name = "python-senlinclient", marker = "extra == 'openstackclients'" },
+    { name = "python-swiftclient", marker = "extra == 'openstackclients'" },
+    { name = "python-tackerclient", marker = "extra == 'openstackclients'" },
+    { name = "python-troveclient", marker = "extra == 'openstackclients'" },
+    { name = "python-vitrageclient", marker = "extra == 'openstackclients'" },
+    { name = "python-watcherclient", marker = "extra == 'openstackclients'" },
+    { name = "python-zaqarclient", marker = "extra == 'openstackclients'" },
+    { name = "ruff", marker = "extra == 'dev'" },
+    { name = "setuptools-scm", marker = "extra == 'openstackclients'" },
+    { name = "sqlalchemy" },
+    { name = "types-croniter", marker = "extra == 'dev'" },
+    { name = "types-pytz", marker = "extra == 'dev'" },
+    { name = "types-pyyaml", marker = "extra == 'dev'" },
+    { name = "types-requests", marker = "extra == 'dev'" },
+]
+provides-extras = ["openstackclients", "dev"]
 
 [[package]]
 name = "openstacksdk"
@@ -2385,120 +2498,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/28/3f/13cacea96900bbd31
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f7/45/8c4ebc0c460e6ec38e62ab245ad3c7fc10b210116cea7c16d61602aa9558/stevedore-5.4.1-py3-none-any.whl", hash = "sha256:d10a31c7b86cba16c1f6e8d15416955fc797052351a56af15e608ad20811fcfe", size = 49533, upload-time = "2025-02-20T14:03:55.849Z" },
 ]
-
-[[package]]
-name = "openstack-migrate"
-version = "2024.1"
-source = { editable = "." }
-dependencies = [
-    { name = "click" },
-    { name = "openstacksdk" },
-    { name = "packaging" },
-    { name = "prettytable" },
-    { name = "pyaml" },
-    { name = "pydantic" },
-    { name = "python-manilaclient" },
-    { name = "sqlalchemy" },
-]
-
-[package.optional-dependencies]
-dev = [
-    { name = "coverage" },
-    { name = "croniter" },
-    { name = "mypy" },
-    { name = "oslotest" },
-    { name = "pytest" },
-    { name = "pytest-mock" },
-    { name = "ruff" },
-    { name = "types-croniter" },
-    { name = "types-pytz" },
-    { name = "types-pyyaml" },
-    { name = "types-requests" },
-]
-openstackclients = [
-    { name = "aodhclient" },
-    { name = "gnocchiclient" },
-    { name = "osc-placement" },
-    { name = "python-barbicanclient" },
-    { name = "python-cloudkittyclient" },
-    { name = "python-congressclient" },
-    { name = "python-designateclient" },
-    { name = "python-freezerclient" },
-    { name = "python-glanceclient" },
-    { name = "python-heatclient" },
-    { name = "python-ironicclient" },
-    { name = "python-keystoneclient" },
-    { name = "python-magnumclient" },
-    { name = "python-masakariclient" },
-    { name = "python-mistralclient" },
-    { name = "python-monascaclient" },
-    { name = "python-muranoclient" },
-    { name = "python-neutronclient" },
-    { name = "python-octaviaclient" },
-    { name = "python-openstackclient" },
-    { name = "python-saharaclient" },
-    { name = "python-senlinclient" },
-    { name = "python-swiftclient" },
-    { name = "python-tackerclient" },
-    { name = "python-troveclient" },
-    { name = "python-vitrageclient" },
-    { name = "python-watcherclient" },
-    { name = "python-zaqarclient" },
-    { name = "setuptools-scm" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "aodhclient", marker = "extra == 'openstackclients'" },
-    { name = "click" },
-    { name = "coverage", marker = "extra == 'dev'", specifier = ">=4.0,!=4.4" },
-    { name = "croniter", marker = "extra == 'dev'" },
-    { name = "gnocchiclient", marker = "extra == 'openstackclients'" },
-    { name = "mypy", marker = "extra == 'dev'" },
-    { name = "openstacksdk" },
-    { name = "osc-placement", marker = "extra == 'openstackclients'" },
-    { name = "oslotest", marker = "extra == 'dev'", specifier = ">=3.2.0" },
-    { name = "packaging", specifier = ">=23.2" },
-    { name = "prettytable" },
-    { name = "pyaml" },
-    { name = "pydantic" },
-    { name = "pytest", marker = "extra == 'dev'" },
-    { name = "pytest-mock", marker = "extra == 'dev'" },
-    { name = "python-barbicanclient", marker = "extra == 'openstackclients'" },
-    { name = "python-cloudkittyclient", marker = "extra == 'openstackclients'" },
-    { name = "python-congressclient", marker = "extra == 'openstackclients'" },
-    { name = "python-designateclient", marker = "extra == 'openstackclients'" },
-    { name = "python-freezerclient", marker = "extra == 'openstackclients'" },
-    { name = "python-glanceclient", marker = "extra == 'openstackclients'" },
-    { name = "python-heatclient", marker = "extra == 'openstackclients'" },
-    { name = "python-ironicclient", marker = "extra == 'openstackclients'" },
-    { name = "python-keystoneclient", marker = "extra == 'openstackclients'" },
-    { name = "python-magnumclient", marker = "extra == 'openstackclients'" },
-    { name = "python-manilaclient" },
-    { name = "python-masakariclient", marker = "extra == 'openstackclients'" },
-    { name = "python-mistralclient", marker = "extra == 'openstackclients'" },
-    { name = "python-monascaclient", marker = "extra == 'openstackclients'" },
-    { name = "python-muranoclient", marker = "extra == 'openstackclients'" },
-    { name = "python-neutronclient", marker = "extra == 'openstackclients'" },
-    { name = "python-octaviaclient", marker = "extra == 'openstackclients'" },
-    { name = "python-openstackclient", marker = "extra == 'openstackclients'" },
-    { name = "python-saharaclient", marker = "extra == 'openstackclients'" },
-    { name = "python-senlinclient", marker = "extra == 'openstackclients'" },
-    { name = "python-swiftclient", marker = "extra == 'openstackclients'" },
-    { name = "python-tackerclient", marker = "extra == 'openstackclients'" },
-    { name = "python-troveclient", marker = "extra == 'openstackclients'" },
-    { name = "python-vitrageclient", marker = "extra == 'openstackclients'" },
-    { name = "python-watcherclient", marker = "extra == 'openstackclients'" },
-    { name = "python-zaqarclient", marker = "extra == 'openstackclients'" },
-    { name = "ruff", marker = "extra == 'dev'" },
-    { name = "setuptools-scm", marker = "extra == 'openstackclients'" },
-    { name = "sqlalchemy" },
-    { name = "types-croniter", marker = "extra == 'dev'" },
-    { name = "types-pytz", marker = "extra == 'dev'" },
-    { name = "types-pyyaml", marker = "extra == 'dev'" },
-    { name = "types-requests", marker = "extra == 'dev'" },
-]
-provides-extras = ["openstackclients", "dev"]
 
 [[package]]
 name = "testtools"
